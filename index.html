@@ -1,18 +1,182 @@
-<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="robots" content="noindex">
-<title>Team Meal</title>
-<meta name="description" content="Pre-order meals for your team, all in one link.">
+<title>Team Meal Coming Soon</title>
+<meta name="description" content="Large group orders, minimal chaos. Team Meal collects every meal through one link and gives the kitchen an organized order ahead of time.">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600&display=swap">
 <style>
-:root{--bg:#0f1a30;--card:#18284a;--line:#2d4272;--text:#eef3ff;--muted:#a9b8d8}
+/* Layout: one centered column on paper, big headline left-aligned at desktop with the kitchen summary card beside it, then three-step row, then audience band, then a repeat sign-up. */
+:root{
+--bg:#FBF8F2;--surface:#FFFFFF;--fg:#13283F;--muted:#4A5A6E;--line:#E6DFD2;--brand:#143758;
+--cta-bg:#143758;--cta-fg:#FFFFFF;--tint:#EAF0F6;--tile:#143758;--lime:#91D847;--alert:#8B2424;--alert-bg:#FBECEC;
+--display:'Montserrat',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0E2742;--surface:#143758;--fg:#FFFFFF;--muted:#B9C7D8;--line:#2A4A6C;--brand:#FFFFFF;--cta-bg:#91D847;--cta-fg:#0E2742;--tint:#143758;--tile:#1B4B7A;--alert:#FFB4B4;--alert-bg:#3A1E24;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0E2742;--surface:#143758;--fg:#FFFFFF;--muted:#B9C7D8;--line:#2A4A6C;--brand:#FFFFFF;--cta-bg:#91D847;--cta-fg:#0E2742;--tint:#143758;--tile:#1B4B7A;--alert:#FFB4B4;--alert-bg:#3A1E24;color-scheme:dark}
 *{box-sizing:border-box}
-body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);color:var(--text);font:16px/1.5 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:24px}
-main{max-width:520px;text-align:center;background:var(--card);border:1px solid var(--line);border-radius:20px;padding:44px 28px}
-h1{font-size:34px;margin:0 0 10px}p{color:var(--muted);margin:0}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.55;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:0}
+.wrap{max-width:1120px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);font-weight:800;color:var(--brand);margin:0;text-wrap:balance}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:24px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:-1.2px;color:var(--brand)}
+.logo svg{width:40px;height:40px;flex:none}
+.pill{font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--brand);border:1.5px solid var(--brand);border-radius:999px;padding:6px 14px;white-space:nowrap}
+.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:48px;align-items:center;padding-block:48px 72px}
+.hero h1{font-size:clamp(38px,6vw,68px);line-height:1.04;letter-spacing:-0.03em}
+.lede{font-size:20px;color:var(--muted);max-width:34em;margin:20px 0 28px}
+form.join{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;max-width:520px}
+.field{flex:1 1 240px;min-width:0;display:flex;flex-direction:column;gap:6px}
+.field label{font-size:14px;font-weight:600;color:var(--fg)}
+.field input{font:inherit;min-height:48px;padding:0 16px;border-radius:999px;border:1.5px solid var(--muted);background:var(--surface);color:var(--fg);width:100%}
+.field input:focus-visible,.btn:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
+.btn{font-family:var(--display);font-weight:700;font-size:17px;min-height:48px;padding:0 28px;border-radius:999px;border:0;background:var(--cta-bg);color:var(--cta-fg);cursor:pointer;align-self:flex-end}
+.btn:hover{filter:brightness(1.08)}
+.btn[disabled]{opacity:.6;cursor:default}
+.msg{flex-basis:100%;font-size:15px;font-weight:500;min-height:22px;margin:0}
+.msg.ok{color:var(--brand)}
+.msg.err{color:var(--alert)}
+.small{font-size:14px;color:var(--muted);margin:14px 0 0}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:24px;box-shadow:0 18px 40px rgba(14,39,66,.12)}
+.eyebrow{font-size:13px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
+.card h3{font-size:24px;letter-spacing:-0.02em;margin:6px 0 10px}
+.row{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:11px 0;border-top:1px solid var(--line)}
+.row b{font-weight:600}
+.row small{display:block;font-size:14px;color:var(--muted)}
+.qty{font-family:var(--display);font-weight:800;font-size:28px;color:var(--brand)}
+.flag{display:inline-flex;align-items:center;gap:6px;margin-top:4px;background:var(--alert-bg);border:1.5px solid var(--alert);color:var(--alert);font-size:13px;font-weight:600;padding:2px 8px;border-radius:8px}
+.total{display:flex;align-items:center;gap:10px;padding-top:14px;border-top:2px solid var(--brand);font-family:var(--display);font-weight:700;font-size:17px;color:var(--brand)}
+section{padding-block:64px;border-top:1px solid var(--line)}
+section h2{font-size:clamp(30px,4.2vw,44px);line-height:1.08;letter-spacing:-0.025em;margin-bottom:12px}
+.sub{color:var(--muted);font-size:19px;max-width:38em;margin:0 0 36px}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px}
+.step{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:24px}
+.step h3{font-size:22px;letter-spacing:-0.02em;margin-bottom:8px}
+.step p{margin:0;color:var(--muted)}
+.steps.four{grid-template-columns:repeat(2,minmax(0,1fr))}
+.three{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:36px}
+.three h3{font-size:22px;letter-spacing:-0.02em;margin-bottom:8px}
+.three p{margin:0;color:var(--muted)}
+.band{background:var(--tint);border-radius:28px;padding:48px;display:grid;grid-template-columns:minmax(0,1fr);gap:20px;border:0}
+.cta{text-align:left}
+footer{padding-block:40px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;color:var(--muted);font-size:15px}
+@media (max-width:860px){.hero{grid-template-columns:minmax(0,1fr);gap:36px;padding-block:24px 48px}.steps,.steps.four,.three{grid-template-columns:minmax(0,1fr)}.band{padding:28px 20px}.btn{align-self:stretch;width:100%}}
+@media (prefers-reduced-motion:no-preference){.btn{transition:filter .15s}}
 </style>
-</head>
-<body><main><h1>Team Meal</h1><p>One link for your whole team to pick their food. Coming soon.</p></main></body>
-</html>
+
+<div class="wrap">
+<header>
+<div class="logo">
+<svg viewBox="0 0 100 100" role="img" aria-label="Team Meal logo"><rect width="100" height="100" rx="22" style="fill:var(--tile)"/><path fill="#fff" fill-rule="evenodd" d="M17 57a33 9.2 0 1 0 66 0a33 9.2 0 1 0-66 0zM25.5 57.5a24.5 3.7 0 1 0 49 0a24.5 3.7 0 1 0-49 0z"/><path fill="#fff" stroke="#fff" stroke-width="1.2" stroke-linejoin="round" d="M28 68.5Q50 74 72 68.5Q70 73.5 50 73.8Q30 73.5 28 68.5Z"/><path d="M42.4 42.7L50.7 53.3L70 29.8" fill="none" style="stroke:var(--tile)" stroke-width="13.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M42.4 42.7L50.7 53.3L70 29.8" fill="none" stroke="#91D847" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<span>Team Meal</span>
+</div>
+<span class="pill">Coming Soon</span>
+</header>
+
+<main>
+<div class="hero">
+<div>
+<h1>Large Group Orders, Minimal Chaos.</h1>
+<p class="lede">Ordering for a big group can mean a server waiting while everyone reads the menu and sorts out who owes what, a kitchen hit with the whole order at once, incorrect orders and missed allergies. Team Meal collects every meal through one link and gives the kitchen an organized order ahead of time so everyone eats what they wanted, sooner.</p>
+<form class="join" novalidate>
+<div class="field">
+<label for="email-1">Email Address</label>
+<input id="email-1" type="email" name="email" autocomplete="email" placeholder="you@example.com" required>
+</div>
+<input type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+<button class="btn" type="submit">Join the Wait List</button>
+<p class="msg" role="status" aria-live="polite"></p>
+</form>
+<p class="small">Early members hear first when Team Meal opens. One email, no spam.</p>
+</div>
+
+<div class="card" aria-label="Example kitchen summary">
+<div class="eyebrow">Kitchen Summary</div>
+<h3>Hawks 10U Team Lunch</h3><div class="row" style="border-top:0;padding-top:0"><div><b>Sent to Kitchen at 10:30 AM</b><small>Pickup at 12:15 PM</small></div></div>
+<div class="row"><div><b>Cheeseburger</b><small>2 no onions · 1 no cheese</small></div><div class="qty">8</div></div>
+<div class="row"><div><b>Chicken Tenders</b><small>2 ranch on the side</small></div><div class="qty">6</div></div>
+<div class="row"><div><b>Caesar Salad</b><small>1 no croutons</small></div><div class="qty">4</div></div>
+<div class="row"><div><b>Veggie Burger</b><span class="flag"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L22 20H2Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M12 10V14.5M12 17.2V17.3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>1 Gluten Allergy Flag</span></div><div class="qty">2</div></div>
+<div class="total"><svg width="26" height="26" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" style="fill:var(--tile)"/><path d="M8 14.5L12.5 19L20 9.5" fill="none" stroke="#91D847" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>20 Meals Accounted For</div>
+</div>
+</div>
+
+<section>
+<h2>Why Big Group Orders Go Wrong</h2>
+<p class="sub">The food is rarely the problem. The ordering and the checks are.</p>
+<div class="steps four">
+<div class="step"><h3>Chaotic Ordering</h3><p>Choices arrive as texts, screenshots, and replies buried in a thread. Someone always forgets, and an allergy gets lost along the way.</p></div>
+<div class="step"><h3>Kitchens Caught Off Guard</h3><p>A 20-meal order that shows up all at once is hard for any kitchen to plan around, especially at the lunch rush.</p></div>
+<div class="step"><h3>Servers Stuck Waiting</h3><p>Staff stand at the table while everyone reads the menu, decides, and figures out whose check is whose. That slows down every other table too.</p></div>
+<div class="step"><h3>Long Waits for Everyone</h3><p>When the order lands late and unorganized, the whole team sits hungry while the kitchen catches up.</p></div>
+</div>
+</section>
+
+<section>
+<h2>How Team Meal Fixes It</h2>
+<p class="sub">One link replaces the thread, the spreadsheet, and the guesswork.</p>
+<div class="steps">
+<div class="step"><h3>Share One Link</h3><p>Paste the restaurant menu, set an order deadline, and send the link to your team, class, office, or family.</p></div>
+<div class="step"><h3>Everyone Picks Ahead of Time</h3><p>Each person reads the menu on their own phone, chooses a meal, and adds allergies or special requests. No one decides at the table, and no account is needed.</p></div>
+<div class="step"><h3>Send the Kitchen One Order Ahead of Time</h3><p>Totals are grouped by item, requests stay attached, and allergy flags stand out. The order also shows who ordered what, so the check is easy to split. The kitchen can plan before you arrive, and your server has nothing to wait on.</p></div>
+</div>
+</section>
+
+<section>
+<h2>Built for the Whole Table</h2>
+<p class="sub">Kitchen-ready, not just organizer-ready. Every person in the chain gets what they need.</p>
+<div class="three">
+<div><h3>For Organizers</h3><p>See who has ordered and who hasn't, and stop retyping everyone's choices into one message.</p></div>
+<div><h3>For Participants</h3><p>Pick what you want, add your allergy note, and know your request will reach the kitchen.</p></div>
+<div><h3>For Kitchens and Servers</h3><p>Get a clear list with item counts, notes, and allergy flags, plus advance notice. A large party no longer ties up a server or slows down every other table.</p></div>
+</div>
+</section>
+
+<section>
+<div class="band">
+<h2>Made for Teams, Offices, and Families</h2>
+<p class="sub" style="margin:0">Youth sports lunches, office catering, class parties, family reunions, and any meal where more than a few people need to order from the same place.</p>
+</div>
+</section>
+
+<section class="cta">
+<h2>Be First in Line</h2>
+<p class="sub">Join the wait list and we will email you the day Team Meal opens.</p>
+<form class="join" novalidate>
+<div class="field">
+<label for="email-2">Email Address</label>
+<input id="email-2" type="email" name="email" autocomplete="email" placeholder="you@example.com" required>
+</div>
+<input type="text" name="company" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0">
+<button class="btn" type="submit">Join the Wait List</button>
+<p class="msg" role="status" aria-live="polite"></p>
+</form>
+</section>
+</main>
+
+<footer><span>Team Meal · teammeal.app</span><span>Group food orders, made easy.</span></footer>
+</div>
+
+<script>
+/* Paste your Google Apps Script web app URL between the quotes, then upload this file to teammeal.app. */
+var SCRIPT_URL = "";
+(function(){
+var re=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+document.querySelectorAll('form.join').forEach(function(f){
+var input=f.querySelector('input[type=email]'),btn=f.querySelector('button'),msg=f.querySelector('.msg');
+function say(t,c){msg.textContent=t;msg.className='msg '+c}
+input.addEventListener('input',function(){say('','')});
+f.addEventListener('submit',function(e){
+e.preventDefault();
+var v=input.value.trim().toLowerCase();
+if(!re.test(v)){say('Enter a valid email address, like you@example.com.','err');input.focus();return}
+if(!SCRIPT_URL){say('Preview only. Sign-ups turn on once the wait list link is added.','err');return}
+btn.disabled=true;
+var hp=f.querySelector('input[name=company]');
+var body=new URLSearchParams({email:v,company:hp?hp.value:''});
+fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',body:body}).then(function(){
+say('You are on the list. We will email you when Team Meal opens.','ok');input.value='';btn.disabled=false;
+}).catch(function(){say('Something went wrong saving your email. Please try again.','err');btn.disabled=false});
+});
+});
+})();
+</script>
