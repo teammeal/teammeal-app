@@ -1,0 +1,799 @@
+{
+ "restaurant": "Ford's Garage Novi",
+ "sides": [
+  "Ford's Fries",
+  "Kettle Chips",
+  "Classic Tots",
+  "Mashed Potatoes",
+  "Broccoli",
+  "Green Beans",
+  "House-Made Coleslaw",
+  "Jasmine Rice"
+ ],
+ "sections": [
+  {
+   "name": "Starters",
+   "note": "",
+   "items": [
+    {
+     "name": "Motor City Kettle Chips",
+     "price": 12.99,
+     "description": "Bacon, beer cheese, cheddar, tomato, green onion, chipotle ranch",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Cheese Curbs",
+     "price": 11.99,
+     "description": "Cheddar bites with chipotle ranch",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Famous Firestone Shrimp",
+     "price": 14.99,
+     "description": "Battered shrimp, spicy sauce, Asian slaw",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Ford's Original Nachos",
+     "price": 14.99,
+     "description": "Bourbon BBQ, beer cheese, pico",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Meat",
+       "choices": [
+        "Chicken",
+        "Pulled Pork"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Giant Onion Ring Tower",
+     "price": 13.99,
+     "description": "Mustard sauce and ranch",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Ford's Pickles",
+     "price": 11.99,
+     "description": "Panko-crusted spears, cucumber wasabi dip",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Edsel's Hot Pretzels",
+     "price": 9.99,
+     "description": "Beer cheese and honey mustard",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Ford's Classic Wings",
+     "price": 16.99,
+     "description": "Menu lists 6 or 10 wings",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Count",
+       "choices": [
+        "6",
+        "10"
+       ]
+      },
+      {
+       "name": "Sauce",
+       "choices": [
+        "Buffalo",
+        "Bourbon BBQ",
+        "Garlic Parmesan"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Burgers of Fame",
+   "note": "Half pound, served with Ford's Fries",
+   "items": [
+    {
+     "name": "American Standard",
+     "price": 15.99,
+     "description": "",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Cook",
+       "choices": [
+        "Medium (default)",
+        "Medium Rare",
+        "Medium Well",
+        "Well Done",
+        "Rare"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Mushroom Swiss",
+     "price": 16.99,
+     "description": "",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Cook",
+       "choices": [
+        "Medium (default)",
+        "Medium Rare",
+        "Medium Well",
+        "Well Done",
+        "Rare"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Ford's Signature",
+     "price": 16.99,
+     "description": "",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Cook",
+       "choices": [
+        "Medium (default)",
+        "Medium Rare",
+        "Medium Well",
+        "Well Done",
+        "Rare"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "High-Octane",
+     "price": 16.99,
+     "description": "",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Cook",
+       "choices": [
+        "Medium (default)",
+        "Medium Rare",
+        "Medium Well",
+        "Well Done",
+        "Rare"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Jiffy Burger",
+     "price": 16.99,
+     "description": "Peanut butter",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Cook",
+       "choices": [
+        "Medium (default)",
+        "Medium Rare",
+        "Medium Well",
+        "Well Done",
+        "Rare"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Estate Burger",
+     "price": 17.99,
+     "description": "",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Cook",
+       "choices": [
+        "Medium (default)",
+        "Medium Rare",
+        "Medium Well",
+        "Well Done",
+        "Rare"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Black-N-Bleu",
+     "price": 17.99,
+     "description": "",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Cook",
+       "choices": [
+        "Medium (default)",
+        "Medium Rare",
+        "Medium Well",
+        "Well Done",
+        "Rare"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Model \"A\"",
+     "price": 17.99,
+     "description": "Sunny-side egg",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Cook",
+       "choices": [
+        "Medium (default)",
+        "Medium Rare",
+        "Medium Well",
+        "Well Done",
+        "Rare"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "BBQ Brisket Burger",
+     "price": 18.99,
+     "description": "",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Cook",
+       "choices": [
+        "Medium (default)",
+        "Medium Rare",
+        "Medium Well",
+        "Well Done",
+        "Rare"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Bison Burger",
+     "price": 19.99,
+     "description": "",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Cook",
+       "choices": [
+        "Medium (default)",
+        "Medium Rare",
+        "Medium Well",
+        "Well Done",
+        "Rare"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Patty Melt",
+     "price": 16.99,
+     "description": "",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Cook",
+       "choices": [
+        "Medium (default)",
+        "Medium Rare",
+        "Medium Well",
+        "Well Done",
+        "Rare"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Green and Clean",
+     "price": 15.99,
+     "description": "Veggie patty",
+     "sideCount": 0,
+     "options": []
+    }
+   ]
+  },
+  {
+   "name": "Roadsters",
+   "note": "1/3 lb, served with Ford's Fries",
+   "items": [
+    {
+     "name": "Americana Roadster",
+     "price": 13.99,
+     "description": "",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Cook",
+       "choices": [
+        "Medium (default)",
+        "Medium Rare",
+        "Medium Well",
+        "Well Done",
+        "Rare"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Cali Roadster",
+     "price": 14.99,
+     "description": "",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Cook",
+       "choices": [
+        "Medium (default)",
+        "Medium Rare",
+        "Medium Well",
+        "Well Done",
+        "Rare"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Sandwiches",
+   "note": "Served with Kettle Chips",
+   "items": [
+    {
+     "name": "Crispy Chicken Sandwich",
+     "price": 14.99,
+     "description": "",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Style",
+       "choices": [
+        "Crispy",
+        "Grilled"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Buffalo Chicken Sandwich",
+     "price": 15.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Pulled Pork Sandwich",
+     "price": 14.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Monte Cristo",
+     "price": 17.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Smoked Brisket Burnt Ends Melt",
+     "price": 18.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    }
+   ]
+  },
+  {
+   "name": "Comfort Foods",
+   "note": "",
+   "items": [
+    {
+     "name": "Hand-Battered Chicken Tenders",
+     "price": 16.99,
+     "description": "One side",
+     "sideCount": 1,
+     "options": []
+    },
+    {
+     "name": "Beer-Battered Fish N' Chips",
+     "price": 18.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Pulled Pork Mac N' Cheese",
+     "price": 15.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Mama Ford's Meatloaf",
+     "price": 16.99,
+     "description": "Two sides",
+     "sideCount": 2,
+     "options": []
+    },
+    {
+     "name": "Chicken Henry",
+     "price": 20.99,
+     "description": "Two sides",
+     "sideCount": 2,
+     "options": []
+    },
+    {
+     "name": "Grilled Sirloin Steak (8 oz)",
+     "price": 20.99,
+     "description": "Two sides",
+     "sideCount": 2,
+     "options": [
+      {
+       "name": "Cook",
+       "choices": [
+        "Medium (default)",
+        "Medium Rare",
+        "Medium Well",
+        "Well Done",
+        "Rare"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Blackened Salmon",
+     "price": 22.99,
+     "description": "Two sides",
+     "sideCount": 2,
+     "options": []
+    },
+    {
+     "name": "BBQ Pork Ribs, Half Rack",
+     "price": 19.99,
+     "description": "With fries",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "BBQ Pork Ribs, Whole Rack",
+     "price": 27.99,
+     "description": "With fries",
+     "sideCount": 0,
+     "options": []
+    }
+   ]
+  },
+  {
+   "name": "Salads",
+   "note": "",
+   "items": [
+    {
+     "name": "Southwest Chicken Salad",
+     "price": 15.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Thai Chicken Salad",
+     "price": 15.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Chicken Cobb Salad",
+     "price": 16.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Berries and Gorgonzola with Shrimp",
+     "price": 17.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Blackened Salmon Salad",
+     "price": 22.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Go Green (no protein)",
+     "price": 13.99,
+     "description": "Any salad without protein",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Which salad",
+       "choices": [
+        "Southwest",
+        "Thai",
+        "Cobb",
+        "Berries and Gorgonzola"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Bowls and Grilled",
+   "note": "",
+   "items": [
+    {
+     "name": "Honey Chipotle Chicken Bowl",
+     "price": 15.99,
+     "description": "Over jasmine rice",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Ford's Burger Bowl",
+     "price": 16.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Seared Ahi Tuna Bowl",
+     "price": 18.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Simply Grilled Chicken",
+     "price": 16.99,
+     "description": "Rice, broccoli, tomatoes",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Simply Grilled Salmon",
+     "price": 22.99,
+     "description": "Rice, broccoli, tomatoes",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Simply Grilled Sirloin",
+     "price": 20.99,
+     "description": "Rice, broccoli, tomatoes",
+     "sideCount": 0,
+     "options": []
+    }
+   ]
+  },
+  {
+   "name": "Soups and Sides",
+   "note": "",
+   "items": [
+    {
+     "name": "Tomato Basil Soup",
+     "price": 5.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "French Onion Soup",
+     "price": 7.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Side of Fries",
+     "price": 3.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Side of Tots",
+     "price": 3.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Side of Mashed Potatoes",
+     "price": 3.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Side of Broccoli",
+     "price": 3.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Side of Coleslaw",
+     "price": 3.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Side House Salad",
+     "price": 5.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Truffle Fries",
+     "price": 5.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Onion Rings (side)",
+     "price": 5.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Sweet Potato Tots",
+     "price": 5.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Side Mac 'n Cheese",
+     "price": 5.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    }
+   ]
+  },
+  {
+   "name": "Kids Menu",
+   "note": "$8.99 each",
+   "items": [
+    {
+     "name": "Kid's Junior Cheeseburger (1/3 lb)",
+     "price": 8.99,
+     "description": "",
+     "sideCount": 1,
+     "options": []
+    },
+    {
+     "name": "Kid's Junior Cheeseburger (1/4 lb)",
+     "price": 8.99,
+     "description": "",
+     "sideCount": 1,
+     "options": []
+    },
+    {
+     "name": "Kid's Chicken Tenders",
+     "price": 8.99,
+     "description": "",
+     "sideCount": 1,
+     "options": []
+    },
+    {
+     "name": "Kid's Grilled Cheese",
+     "price": 8.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Kid's Fish Planks",
+     "price": 8.99,
+     "description": "",
+     "sideCount": 1,
+     "options": []
+    },
+    {
+     "name": "Kid's Grilled Chicken Sandwich",
+     "price": 8.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Kid's Junior Mac 'n Cheese",
+     "price": 8.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    }
+   ]
+  },
+  {
+   "name": "Desserts and Drinks",
+   "note": "",
+   "items": [
+    {
+     "name": "Old-Fashioned Milkshake",
+     "price": 7.99,
+     "description": "",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Flavor",
+       "choices": [
+        "Vanilla",
+        "Chocolate",
+        "Strawberry",
+        "Oreo"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Funnel Fries",
+     "price": 7.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Brookie Sundae",
+     "price": 8.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Caramel Apple Cookie Skillet",
+     "price": 9.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Key Lime Pie",
+     "price": 8.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Dirty Soda (non-alcoholic)",
+     "price": 4.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Guava Fizz (non-alcoholic)",
+     "price": 7.99,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    }
+   ]
+  }
+ ]
+}

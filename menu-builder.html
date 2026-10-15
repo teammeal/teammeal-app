@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Menu Builder (prototype)</title>
+<style>
+:root{--bg:#0f1a30;--card:#18284a;--input:#0b1429;--line:#2d4272;--text:#eef3ff;--muted:#a9b8d8;--accent:#ff6b6b;--ok:#3fb97a;--warn:#ffb86b}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:16px 16px 60px}
+.wrap{max-width:720px;margin:0 auto}
+h1{font-size:26px;margin:8px 0 4px}h2{font-size:18px;margin:0 0 8px}
+.sub{color:var(--muted);margin:0 0 16px}.note{color:var(--muted);font-size:14px;margin:0 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 0 16px}
+textarea{width:100%;min-height:150px;background:var(--input);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;resize:vertical}
+button{font:inherit;border-radius:10px;padding:10px 16px;border:1px solid var(--line);background:transparent;color:var(--text);cursor:pointer}
+button.go{background:var(--ok);border-color:var(--ok);color:#04210f;font-weight:700}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+pre.prompt{white-space:pre-wrap;background:var(--input);border:1px solid var(--line);border-radius:10px;padding:12px;font:13px/1.4 ui-monospace,Menlo,Consolas,monospace;max-height:220px;overflow:auto;margin:0}
+.msg{border-radius:10px;padding:10px 12px;margin-top:10px;font-size:14px}
+.msg.err{background:#3a1d2b;border:1px solid var(--accent)}
+.msg.warn{background:#3a2d1a;border:1px solid var(--warn)}
+.msg.ok{background:#14351f;border:1px solid var(--ok)}
+.msg ul{margin:6px 0 0 18px;padding:0}
+details{border-top:1px solid var(--line);padding:10px 0}
+summary{cursor:pointer;font-weight:600}
+.item{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid #22355f}
+.item .nm{font-weight:600}.ds,.meta{color:var(--muted);font-size:13px}
+.price{white-space:nowrap}
+.bad{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Menu Builder</h1>
+  <p class="sub">Prototype. Turn any restaurant menu into an order page in three steps.</p>
+
+  <div class="card">
+    <h2>1. Copy this prompt</h2>
+    <p class="note">Paste it into ChatGPT, Claude or any AI chat. Then add the menu below it: a link, a photo, a PDF, or the text.</p>
+    <pre class="prompt" id="prompt"></pre>
+    <div class="row"><button class="go" id="copy">Copy prompt</button><span id="copied" class="note" style="align-self:center"></span></div>
+  </div>
+
+  <div class="card">
+    <h2>2. Paste what the AI gives back</h2>
+    <textarea id="paste" placeholder="Paste the result here"></textarea>
+    <div class="row"><button class="go" id="check">Check menu</button><button id="sample">Try the Ford's Garage sample</button></div>
+    <div id="msgs"></div>
+  </div>
+
+  <div class="card" id="previewCard" style="display:none">
+    <h2>3. Check it looks right</h2>
+    <p class="note">Look over every price. If something is wrong, tell the AI what to fix, then paste the new result above.</p>
+    <div id="preview"></div>
+    <div class="row"><button class="go" id="download">Download menu file</button></div>
+  </div>
+</div>
+
+<script>
+const PROMPT = `Turn the restaurant menu I give you into JSON for a group meal-ordering page.
+
+Rules:
+- Reply with ONLY the JSON. No explanation, no markdown fences.
+- Never guess. If a price is not shown, use null. If you cannot read an item, leave it out.
+- Prices are plain numbers in dollars, for example 12.99.
+- "sideCount" is how many sides come with the item (0 if none). Put the restaurant's side choices in the top-level "sides" list.
+- Use "options" only when the guest must choose something (cook temperature, sauce, size, meat). Each option has a name and a list of choices.
+- Keep the restaurant's own section names and order.
+- Include every food and drink item.
+
+Use exactly this shape:
+{
+  "restaurant": "Restaurant name",
+  "sides": ["Fries", "Salad"],
+  "sections": [
+    {
+      "name": "Section name",
+      "note": "Short note shown under the section name, or empty",
+      "items": [
+        {
+          "name": "Item name",
+          "price": 12.99,
+          "description": "Short description, or empty",
+          "sideCount": 0,
+          "options": [ { "name": "Cook", "choices": ["Medium", "Well Done"] } ]
+        }
+      ]
+    }
+  ]
+}
+
+Here is the menu:
+`;
+const $ = s => document.querySelector(s);
+const esc = t => String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+$("#prompt").textContent = PROMPT;
+let current = null;
+
+$("#copy").onclick = async () => {
+  try { await navigator.clipboard.writeText(PROMPT); $("#copied").textContent = "Copied."; }
+  catch (e) { const r = document.createRange(); r.selectNodeContents($("#prompt")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); $("#copied").textContent = "Press copy on your phone or keyboard."; }
+};
+
+function parseLoose(text) {
+  let t = text.trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+  const a = t.indexOf("{"), b = t.lastIndexOf("}");
+  if (a < 0 || b < a) throw new Error("I can't find a menu in that. Make sure you pasted the whole reply from the AI.");
+  try { return JSON.parse(t.slice(a, b + 1)); }
+  catch (e) { throw new Error("The text looks cut off or has a typo. Ask the AI to \"send the complete JSON again\" and paste that."); }
+}
+
+function validate(m) {
+  const errors = [], warnings = [];
+  if (!m || typeof m !== "object") return {errors: ["That isn't a menu."], warnings};
+  if (!m.restaurant || !String(m.restaurant).trim()) errors.push("The restaurant name is missing.");
+  if (!Array.isArray(m.sections) || !m.sections.length) { errors.push("No menu sections found."); return {errors, warnings}; }
+  const sides = Array.isArray(m.sides) ? m.sides.filter(Boolean) : [];
+  let items = 0, needSides = false;
+  m.sections.forEach((s, si) => {
+    const sn = (s && s.name) || "Section " + (si + 1);
+    if (!s || !s.name) errors.push(`Section ${si + 1} has no name.`);
+    if (!s || !Array.isArray(s.items) || !s.items.length) { errors.push(`"${sn}" has no items.`); return; }
+    s.items.forEach((it, ii) => {
+      items++;
+      const nm = (it && it.name) ? it.name : `item ${ii + 1} in "${sn}"`;
+      if (it && typeof it.price === "string" && /^\s*\$?\d+(\.\d{1,2})?\s*$/.test(it.price)) it.price = parseFloat(it.price.replace("$", ""));
+      if (!it || !it.name) errors.push(`Item ${ii + 1} in "${sn}" has no name.`);
+      if (it && (it.price === null || it.price === undefined || it.price === "")) errors.push(`"${nm}" has no price. Add it or remove the item.`);
+      else if (it && (typeof it.price !== "number" || !isFinite(it.price) || it.price < 0)) errors.push(`"${nm}" has a price that isn't a number (${JSON.stringify(it.price)}).`);
+      else if (it && it.price === 0) warnings.push(`"${nm}" is $0.00. Is that right?`);
+      else if (it && it.price > 100) warnings.push(`"${nm}" is $${it.price}. Double-check that price.`);
+      if (it && it.sideCount) { if (!Number.isInteger(it.sideCount) || it.sideCount < 0 || it.sideCount > 4) errors.push(`"${nm}" has an odd number of sides (${it.sideCount}).`); else needSides = true; }
+      if (it && it.options !== undefined && !Array.isArray(it.options)) errors.push(`"${nm}" has options in the wrong format.`);
+      (it && Array.isArray(it.options) ? it.options : []).forEach(o => {
+        if (!o || !o.name || !Array.isArray(o.choices) || o.choices.length < 2) errors.push(`An option on "${nm}" needs a name and at least two choices.`);
+      });
+    });
+  });
+  if (needSides && !sides.length) errors.push("Some items come with sides, but the list of side choices is empty.");
+  if (!errors.length && items < 3) warnings.push("That's very few items. Did the AI skip part of the menu?");
+  return {errors, warnings, items};
+}
+
+function show(res, m) {
+  const box = $("#msgs"); box.innerHTML = "";
+  const add = (cls, head, list) => { const d = document.createElement("div"); d.className = "msg " + cls; d.innerHTML = `<b>${esc(head)}</b>` + (list && list.length ? `<ul>${list.map(x => `<li>${esc(x)}</li>`).join("")}</ul>` : ""); box.appendChild(d); };
+  if (res.errors.length) { add("err", `Fix ${res.errors.length} thing${res.errors.length > 1 ? "s" : ""} before this can be used:`, res.errors); $("#previewCard").style.display = "none"; current = null; return; }
+  add("ok", `Looks good: ${m.sections.length} sections, ${res.items} items.`);
+  if (res.warnings.length) add("warn", "Worth a second look:", res.warnings);
+  current = m; renderPreview(m);
+}
+
+function renderPreview(m) {
+  const sides = (m.sides || []).filter(Boolean);
+  let h = `<p><b>${esc(m.restaurant)}</b>${sides.length ? `<span class="meta"><br>Side choices: ${esc(sides.join(", "))}</span>` : ""}</p>`;
+  m.sections.forEach(s => {
+    h += `<details><summary>${esc(s.name)} <span class="meta">(${s.items.length})</span></summary>${s.note ? `<p class="note">${esc(s.note)}</p>` : ""}`;
+    s.items.forEach(it => {
+      const meta = [];
+      if (it.sideCount) meta.push(`${it.sideCount} side${it.sideCount > 1 ? "s" : ""}`);
+      (it.options || []).forEach(o => meta.push(`${o.name}: ${o.choices.join(" / ")}`));
+      h += `<div class="item"><div><div class="nm">${esc(it.name)}</div>${it.description ? `<div class="ds">${esc(it.description)}</div>` : ""}${meta.length ? `<div class="meta">${esc(meta.join(" · "))}</div>` : ""}</div><div class="price">$${Number(it.price).toFixed(2)}</div></div>`;
+    });
+    h += `</details>`;
+  });
+  $("#preview").innerHTML = h; $("#previewCard").style.display = "block";
+}
+
+$("#check").onclick = () => {
+  try { const m = parseLoose($("#paste").value); show(validate(m), m); }
+  catch (e) { const box = $("#msgs"); box.innerHTML = `<div class="msg err"><b>${esc(e.message)}</b></div>`; $("#previewCard").style.display = "none"; current = null; }
+};
+$("#sample").onclick = async () => {
+  try { const r = await fetch("fordsgarage-menu.json"); $("#paste").value = JSON.stringify(await r.json(), null, 1); $("#check").click(); }
+  catch (e) { $("#msgs").innerHTML = `<div class="msg err"><b>Couldn't load the sample.</b></div>`; }
+};
+$("#download").onclick = () => {
+  if (!current) return;
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(current, null, 1)], {type: "application/json"}));
+  a.download = (current.restaurant || "menu").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-menu.json";
+  a.click();
+};
+</script>
+</body>
+</html>

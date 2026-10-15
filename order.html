@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Team Meal Order</title>
+<style>
+:root{--bg:#0f1b33;--card:#17274a;--line:#2b3e6b;--text:#eef2fb;--muted:#a9b6d3;--accent:#e8423f;--ok:#2fb36b;--input:#0c1630}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:16px/1.45 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:16px 16px 120px}
+.wrap{max-width:720px;margin:0 auto}
+h1{font-size:26px;margin:8px 0 4px}
+h2{font-size:18px;margin:0 0 10px}
+p.sub{color:var(--muted);margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;margin:0 0 16px}
+label{display:block;font-weight:600;font-size:14px;margin:0 0 4px}
+.req{color:var(--accent)}
+input,select,textarea{width:100%;background:var(--input);color:var(--text);border:1px solid var(--line);border-radius:10px;padding:11px 12px;font:inherit}
+textarea{min-height:96px;resize:vertical}
+.grid{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+.grid .full{grid-column:1/-1}
+.row2{display:flex;gap:12px;align-items:flex-end}
+.numf{width:84px;flex:none}
+.numf input{text-align:center}
+@media(max-width:480px){.grid{grid-template-columns:1fr}}
+.sec{margin:0 0 6px;border-top:1px solid var(--line)}
+.sec>summary{cursor:pointer;padding:12px 2px;font-weight:700;font-size:16px;list-style:none;display:flex;justify-content:space-between}
+.sec>summary::after{content:"▾";color:var(--muted)}
+.sec[open]>summary::after{content:"▴"}
+.item{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 0;border-top:1px dashed var(--line)}
+.item .nm{font-weight:600}
+.item .ds{font-size:13px;color:var(--muted)}
+.price{white-space:nowrap;color:var(--muted);font-size:14px;margin-right:8px}
+button{font:inherit;cursor:pointer}
+.add{background:var(--accent);color:#fff;border:0;border-radius:10px;padding:8px 14px;font-weight:700}
+.ghost{background:transparent;border:1px solid var(--line);color:var(--text);border-radius:10px;padding:8px 12px}
+.line{border:1px solid var(--line);border-radius:12px;padding:12px;margin:0 0 10px;background:var(--input)}
+.line .top{display:flex;justify-content:space-between;gap:8px;font-weight:700}
+.line .opts{display:grid;gap:8px;margin-top:8px;grid-template-columns:1fr 1fr}
+@media(max-width:480px){.line .opts{grid-template-columns:1fr}}
+.line small{color:var(--muted);font-weight:400}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{display:flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:999px;padding:7px 12px;background:var(--input);font-size:14px;cursor:pointer}
+.chip input{width:auto;margin:0}
+.chip.on{border-color:var(--accent);background:#3a1d2b}
+.bar{position:fixed;left:0;right:0;bottom:0;background:#0b1530;border-top:1px solid var(--line);padding:12px 16px}
+.bar .in{max-width:720px;margin:0 auto;display:flex;gap:12px;align-items:center;justify-content:space-between}
+.send{background:var(--ok);color:#fff;border:0;border-radius:12px;padding:13px 20px;font-weight:800;font-size:16px}
+.err{background:#4a1d27;border:1px solid #8a2b3b;color:#ffd5db;border-radius:10px;padding:10px 12px;margin:0 0 12px;display:none}
+.done h2{color:var(--ok)}
+pre{white-space:pre-wrap;background:var(--input);border:1px solid var(--line);border-radius:10px;padding:12px;font-size:13px}
+.empty{color:var(--muted);font-size:14px}
+.pbox{border:1px solid var(--line);border-radius:14px;padding:12px;margin:0 0 14px}
+.ph{display:flex;justify-content:space-between;gap:8px;margin:0 0 10px;font-size:17px}
+.banner{background:var(--input);border:1px solid var(--accent);border-radius:10px;padding:10px 12px;margin:0 0 12px}
+.chip .x{padding:0 8px;border-radius:999px;line-height:1.3}
+.note{font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap" id="app">
+  <h1 id="title">Team Meal Order</h1>
+  <p class="sub" id="subtitle"></p>
+
+  <div class="err" id="err"></div>
+  <div class="card" id="history" style="display:none"></div>
+
+  <div id="formView">
+    <div class="card">
+      <h2>Who Is Eating?</h2>
+      <div class="row2">
+        <div class="numf"><label for="num">Player # <span class="req">*</span></label><input id="num" inputmode="numeric" maxlength="3" placeholder="17"></div>
+        <div style="flex:1"><label for="first">First name <span class="req">*</span></label><input id="first" autocomplete="given-name"></div>
+      </div>
+      <div class="chips" id="peopleRow" style="margin-top:18px;align-items:center">
+        <span id="people" style="display:contents"></span>
+        <button type="button" class="ghost" id="showAdd" style="border-radius:999px;padding:7px 12px;font-size:14px">+ Add another person</button>
+        <span id="addRow" style="display:none;gap:8px;align-items:center;flex:1 1 220px">
+          <input id="newPerson" placeholder="Their name" style="flex:1;min-width:0" autocomplete="off">
+          <button type="button" class="ghost" id="addPerson">Add</button>
+        </span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Pick Food</h2>
+      <div class="banner" id="forBanner"></div>
+      <p class="note">Tap Add on anything you want. Each one shows up under Your Order, where you can pick sides and options.</p>
+      <div id="menu"></div>
+    </div>
+
+    <div class="card">
+      <h2>Your Order</h2>
+      <div id="cart"><p class="empty">Nothing yet. Add something above.</p></div>
+    </div>
+  </div>
+
+  <div id="doneView" class="card done" style="display:none"></div>
+</div>
+
+<div class="bar" id="bar"><div class="in">
+  <div><div style="font-size:12px;color:var(--muted)">Estimated total (before tax and tip)</div><div id="total" style="font-weight:800;font-size:20px">$0.00</div></div>
+  <button class="send" id="sendBtn">Send My Order</button>
+</div></div>
+
+<script>
+/* ---------- SETTINGS: change these ---------- */
+const Q = new URLSearchParams(location.search);
+const SETTINGS = {
+  teamName: Q.get("team") || "",
+  eventName: "",
+  orderDate: "",
+  emailTo: "",
+  // Prototype: orders go to the same Google Sheet as the Rebe11ion page.
+  postUrl: "https://script.google.com/macros/s/AKfycbzjJ-qIwNBOZiRtbpZq4Hs9i3D3df-V9pkEWdlORB82wWXh8wlC6-ViHQa_Dsh-pG8r/exec"
+};
+const MENU_FILE = (Q.get("menu") || "fordsgarage-menu.json").replace(/[^a-zA-Z0-9._-]/g, "");
+/* -------------------------------------------- */
+
+let SIDES = [], MENU = [], RESTAURANT = "";
+const ALLERGENS = ["Gluten / Celiac","Dairy","Eggs","Peanuts","Tree Nuts","Shellfish","Fish","Soy","Sesame","Vegetarian","Other (explain below)"];
+
+const $ = s => document.querySelector(s);
+const money = n => "$" + n.toFixed(2);
+const esc = t => String(t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/"/g, "&quot;");
+let cart = [], uid = 0;
+let people = [{id: 0, name: "", allergies: [], notes: "", open: false}], activeId = 0, pidSeq = 0;
+const pLabel = p => p.id === 0 ? (($("#first").value || "").trim() || "Me") : p.name;
+
+$("#subtitle").style.display = "none";
+
+/* menu */
+function buildMenu() {
+const menuEl = $("#menu"); menuEl.innerHTML = "";
+MENU.forEach((sec, si) => {
+  const d = document.createElement("details"); d.className = "sec";
+  d.innerHTML = `<summary>${sec.s}</summary>` + (sec.note ? `<div class="note">${sec.note}</div>` : "");
+  sec.items.forEach((it, ii) => {
+    const row = document.createElement("div"); row.className = "item";
+    row.innerHTML = `<div><div class="nm">${it.n}</div>${it.d ? `<div class="ds">${it.d}</div>` : ""}</div>
+      <div style="display:flex;align-items:center"><span class="price">${money(it.p)}</span><button type="button" class="add">Add</button></div>`;
+    row.querySelector(".add").onclick = () => addLine(si, ii);
+    d.appendChild(row);
+  });
+  menuEl.appendChild(d);
+});
+}
+
+async function loadMenu() {
+  try {
+    const r = await fetch(MENU_FILE, {cache: "no-store"}); if (!r.ok) throw 0;
+    const m = await r.json();
+    RESTAURANT = m.restaurant || ""; SIDES = m.sides || [];
+    MENU = m.sections.map(sec => ({s: sec.name, note: sec.note || "", items: sec.items.map(i => ({n: i.name, p: i.price, d: i.description || "", sides: i.sideCount || 0, opts: (i.options || []).map(o => ({k: o.name, v: o.choices}))}))}));
+    document.title = (RESTAURANT || "Team") + " Order";
+    $("#title").textContent = (SETTINGS.teamName ? SETTINGS.teamName + " - " : "") + (RESTAURANT ? RESTAURANT + " Order" : "Meal Order");
+    buildMenu();
+  } catch (e) { $("#menu").innerHTML = '<p class="note">This menu could not be loaded. Check the link and try again.</p>'; }
+}
+/* people */
+function renderPeople() {
+  const el = $("#people"); el.innerHTML = "";
+  people.forEach(p => {
+    const l = document.createElement("label"); l.className = "chip" + (p.id === activeId ? " on" : "");
+    l.innerHTML = `<span>${esc(pLabel(p))}</span>` + (p.id !== 0 ? ` <button type="button" class="ghost x" data-delp="${p.id}" aria-label="Remove ${esc(p.name)}">×</button>` : "");
+    l.onclick = e => { if (e.target.closest("[data-delp]")) return; activeId = p.id; renderPeople(); };
+    el.appendChild(l);
+  });
+  el.querySelectorAll("[data-delp]").forEach(b => b.onclick = e => {
+    e.stopPropagation(); const id = +b.dataset.delp;
+    people = people.filter(p => p.id !== id); cart = cart.filter(l => l.pid !== id);
+    if (activeId === id) activeId = 0;
+    renderPeople(); renderCart();
+  });
+  const act = people.find(p => p.id === activeId) || people[0];
+  $("#forBanner").innerHTML = `Adding food for: <b>${esc(pLabel(act))}</b>`;
+}
+function addPerson() {
+  const v = $("#newPerson").value.trim(); if (!v) return;
+  people.push({id: ++pidSeq, name: v, allergies: [], notes: "", open: false}); activeId = pidSeq;
+  $("#newPerson").value = ""; $("#addRow").style.display = "none"; $("#showAdd").style.display = ""; renderPeople(); renderCart();
+}
+$("#showAdd").onclick = () => { $("#addRow").style.display = "flex"; $("#showAdd").style.display = "none"; $("#newPerson").focus(); };
+$("#addPerson").onclick = addPerson;
+$("#newPerson").onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); addPerson(); } };
+$("#first").oninput = () => { renderPeople(); renderCart(); };
+
+function addLine(si, ii) {
+  const it = MENU[si].items[ii];
+  const sel = {};
+  (it.opts || []).forEach(o => sel[o.k] = o.v[0]);
+  const sides = [];
+  for (let i = 0; i < (it.sides || 0); i++) sides.push(SIDES[0]);
+  cart.push({id: ++uid, pid: activeId, it, sel, sides, note: ""});
+  renderCart();
+}
+function renderCart() {
+  const el = $("#cart");
+  if (!cart.length && people.length < 2) { el.innerHTML = '<p class="empty">Nothing yet. Add something above.</p>'; updateTotal(); return; }
+  el.innerHTML = "";
+  people.forEach(p => {
+    const lines = cart.filter(l => l.pid === p.id);
+    if (!lines.length) {
+      if (people.length < 2) return;
+      const w = document.createElement("div"); w.className = "pbox";
+      w.innerHTML = `<h3 class="ph"><span>${esc(pLabel(p))}</span><span>$0.00</span></h3><p class="note" style="color:#ffb4b4;margin:0">${esc(pLabel(p))} has not selected any food yet. Tap their name above, then add food.</p>`;
+      el.appendChild(w); return;
+    }
+    const box = document.createElement("div"); box.className = "pbox";
+    box.innerHTML = `<h3 class="ph"><span>${esc(pLabel(p))}</span><span>${money(lines.reduce((n, l) => n + l.it.p, 0))}</span></h3>`;
+    lines.forEach(line => {
+      const div = document.createElement("div"); div.className = "line";
+      let h = `<div class="top"><span>${line.it.n}</span><span>${money(line.it.p)} <button type="button" class="ghost" data-rm="${line.id}" style="padding:2px 10px;margin-left:6px">Remove</button></span></div>`;
+      const sels = [];
+      (line.it.opts || []).forEach(o => sels.push(`<div><label>${o.k}</label><select data-opt="${line.id}|${o.k}">${o.v.map(v => `<option${line.sel[o.k] === v ? " selected" : ""}>${v}</option>`).join("")}</select></div>`));
+      line.sides.forEach((s, i) => sels.push(`<div><label>Side ${line.sides.length > 1 ? i + 1 : ""}</label><select data-side="${line.id}|${i}">${SIDES.map(v => `<option${s === v ? " selected" : ""}>${v}</option>`).join("")}</select></div>`));
+      if (sels.length) h += `<div class="opts">${sels.join("")}</div>`;
+      h += `<div style="margin-top:8px"><label>Changes to this item <small>(optional)</small></label><input data-note="${line.id}" value="${esc(line.note)}" placeholder="No onion, sauce on the side..."></div>`;
+      div.innerHTML = h; box.appendChild(div);
+    });
+    const d = document.createElement("details"); d.className = "sec"; d.open = p.open;
+    d.innerHTML = `<summary>Allergies and edits for ${esc(pLabel(p))}</summary><p class="note">Tell the kitchen anything they need to know. Check all that apply, then add details.</p><div class="chips"></div><label style="margin-top:12px">Details, edits or special requests</label><textarea></textarea>`;
+    const chips = d.querySelector(".chips");
+    ALLERGENS.forEach(a => {
+      const l = document.createElement("label"); l.className = "chip" + (p.allergies.includes(a) ? " on" : "");
+      l.innerHTML = `<input type="checkbox" value="${esc(a)}"${p.allergies.includes(a) ? " checked" : ""}> ${esc(a)}`;
+      l.querySelector("input").onchange = e => {
+        l.classList.toggle("on", e.target.checked);
+        p.allergies = e.target.checked ? p.allergies.concat(a) : p.allergies.filter(x => x !== a);
+      };
+      chips.appendChild(l);
+    });
+    const ta = d.querySelector("textarea"); ta.value = p.notes; ta.oninput = () => { p.notes = ta.value; };
+    d.ontoggle = () => { p.open = d.open; };
+    box.appendChild(d); el.appendChild(box);
+  });
+  el.querySelectorAll("[data-rm]").forEach(b => b.onclick = () => { cart = cart.filter(l => l.id != b.dataset.rm); renderCart(); });
+  el.querySelectorAll("[data-opt]").forEach(s => s.onchange = () => { const [id, k] = s.dataset.opt.split("|"); cart.find(l => l.id == id).sel[k] = s.value; });
+  el.querySelectorAll("[data-side]").forEach(s => s.onchange = () => { const [id, i] = s.dataset.side.split("|"); cart.find(l => l.id == id).sides[i] = s.value; });
+  el.querySelectorAll("[data-note]").forEach(s => s.oninput = () => { cart.find(l => l.id == s.dataset.note).note = s.value; });
+  updateTotal();
+}
+function updateTotal() { $("#total").textContent = money(cart.reduce((n, l) => n + l.it.p, 0)); }
+renderPeople(); loadMenu();
+
+function lineText(l) {
+  const bits = [];
+  Object.entries(l.sel).forEach(([k, v]) => bits.push(`${k}: ${v}`));
+  if (l.sides.length) bits.push("Sides: " + l.sides.join(", "));
+  if (l.note.trim()) bits.push("Changes: " + l.note.trim());
+  return `- ${l.it.n}${bits.length ? " (" + bits.join("; ") + ")" : ""}`;
+}
+const HKEY = "teammeal_orders";
+function loadHistory() { try { return JSON.parse(localStorage.getItem(HKEY) || "[]"); } catch (e) { return []; } }
+function saveHistory(o) {
+  try { const h = loadHistory(); h.unshift({t: Date.now(), name: o.first, num: o.num, total: o.total, text: o.text}); localStorage.setItem(HKEY, JSON.stringify(h.slice(0, 20))); } catch (e) {}
+}
+function renderHistory() {
+  const h = loadHistory(), el = $("#history");
+  if (!h.length) { el.style.display = "none"; return; }
+  el.style.display = "block";
+  el.innerHTML = `<h2>Orders You Already Sent</h2><p class="note">Saved on this phone so you can check what you ordered.</p>` +
+    h.map(x => `<details class="sec"><summary>${esc(x.name)} #${esc(x.num)} · ${new Date(x.t).toLocaleString([], {month: "short", day: "numeric", hour: "numeric", minute: "2-digit"})} · ${money(x.total)}</summary><pre>${esc(x.text)}</pre></details>`).join("");
+}
+renderHistory();
+
+function showErr(m) { const e = $("#err"); e.textContent = m; e.style.display = m ? "block" : "none"; if (m) window.scrollTo({top: 0, behavior: "smooth"}); }
+
+function buildOrder() {
+  const first = $("#first").value.trim(), last = "", num = $("#num").value.trim();
+  if (!first) return showErr("Please enter your first name."), null;
+  if (!num) return showErr("Please enter the player number."), null;
+  if (!cart.length) return showErr("Please add at least one item."), null;
+  showErr("");
+  const groups = people.map(p => ({p, lines: cart.filter(l => l.pid === p.id)})).filter(g => g.lines.length);
+  const total = cart.reduce((n, l) => n + l.it.p, 0);
+  const parts = [`ORDER: ${first}, Player #${num}`];
+  if (SETTINGS.teamName) parts.push(`Team: ${SETTINGS.teamName}`);
+  if (groups.length > 1) parts.push(`${groups.length} people on this order`);
+  groups.forEach(g => {
+    parts.push("", `== ${pLabel(g.p)} ==`, ...g.lines.map(lineText),
+      `Allergies: ${g.p.allergies.length ? g.p.allergies.join(", ") : "None listed"}`,
+      `Edits / accommodations: ${g.p.notes.trim() || "None"}`,
+      `Subtotal: ${money(g.lines.reduce((n, l) => n + l.it.p, 0))}`);
+  });
+  parts.push("", `Estimated total: ${money(total)} (before tax and tip)`);
+  const text = parts.join("\n");
+  const joined = f => groups.map(g => f(g.p) ? `${pLabel(g.p)}: ${f(g.p)}` : "").filter(Boolean).join(" | ");
+  return {first, last, num, total, text,
+    allergies: joined(p => p.allergies.join(", ")), notes: joined(p => p.notes.trim()),
+    items: groups.flatMap(g => g.lines.map(l => ({person: pLabel(g.p), item: l.it.n, price: l.it.p, options: l.sel, sides: l.sides,
+      changes: l.note.trim(), allergies: g.p.allergies.join(", "), notes: g.p.notes.trim()})))};
+}
+
+$("#sendBtn").onclick = async () => {
+  const o = buildOrder(); if (!o) return;
+  const done = $("#doneView");
+  const subject = `Meal order: ${o.first} #${o.num}`;
+  const show = (msg, extra = "") => {
+    saveHistory(o); $("#history").style.display = "none";
+    $("#formView").style.display = "none"; $("#bar").style.display = "none"; done.style.display = "block";
+    done.innerHTML = `<h2>${msg}</h2>${extra}<pre>${o.text.replace(/</g, "&lt;")}</pre>
+      <button class="ghost" id="copyBtn">Copy Order</button> <button class="ghost" id="againBtn">Start Another Order</button>`;
+    $("#copyBtn").onclick = () => navigator.clipboard && navigator.clipboard.writeText(o.text).then(() => $("#copyBtn").textContent = "Copied");
+    $("#againBtn").onclick = () => location.reload();
+    window.scrollTo({top: 0});
+  };
+  if (SETTINGS.postUrl) {
+    $("#sendBtn").disabled = true; $("#sendBtn").textContent = "Sending...";
+    try {
+      // Plain-text body keeps this a "simple" request so the Google Sheet link accepts it from any website.
+      await fetch(SETTINGS.postUrl, {method: "POST", mode: "no-cors", headers: {"Content-Type": "text/plain;charset=utf-8"},
+        body: JSON.stringify({first: o.first, last: o.last, num: o.num, allergies: o.allergies, notes: o.notes,
+          total: o.total.toFixed(2), order: o.text, items: o.items})});
+      show("Order Sent. Thank You!");
+    } catch (e) {
+      $("#sendBtn").disabled = false; $("#sendBtn").textContent = "Send My Order";
+      showErr("That didn't send. Please try again, or text your order to the coach.");
+    }
+  } else if (SETTINGS.emailTo) {
+    show("Almost Done: Send the Email",
+      `<p>Your email app should open with your order filled in. Tap Send there to finish. If it didn't open, copy your order below and email it to ${SETTINGS.emailTo}.</p>`);
+    location.href = `mailto:${SETTINGS.emailTo}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(o.text)}`;
+  } else {
+    show("Order Ready", `<p>Copy this order and send it to the coach.</p>`);
+  }
+};
+</script>
+</body>
+</html>
