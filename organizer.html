@@ -92,6 +92,7 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
       <div class="row noprint">
         <button class="btn" id="copyKitchen">Copy kitchen order</button>
         <button class="btn ghost" id="printBtn">Print</button>
+        <a class="btn ghost" id="csvBtn" href="#">Download spreadsheet</a>
         <button class="btn ghost" id="refresh">Refresh</button>
         <span class="small" id="updated"></span>
       </div>
@@ -156,6 +157,7 @@ function render() {
   $("#sMeals").textContent = s.meals;
   $("#sWait").textContent = waiting.length;
   $("#teamLink").value = TM.teamLink(t.id);
+  $("#csvBtn").href = TM.api() + "?" + new URLSearchParams({action: "csv", id: t.id, key: KEY});
 
   /* allergies */
   const alg = s.allergies;
