@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<title>Team Meal Organizer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root{
+--bg:#FBF8F2;--surface:#FFFFFF;--fg:#13283F;--muted:#4A5A6E;--line:#E6DFD2;--brand:#143758;
+--cta-bg:#143758;--cta-fg:#FFFFFF;--tint:#EAF0F6;--lime:#91D847;--alert:#8B2424;--alert-bg:#FBECEC;--ok:#1E6B3E;--ok-bg:#E9F6EE;--warn:#7A5300;--warn-bg:#FFF4D6;
+--display:'Montserrat',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root{--bg:#0E2742;--surface:#143758;--fg:#FFFFFF;--muted:#B9C7D8;--line:#2A4A6C;--brand:#FFFFFF;--cta-bg:#91D847;--cta-fg:#0E2742;--tint:#10304F;--alert:#FFB4B4;--alert-bg:#3A1E24;--ok:#9BE3B5;--ok-bg:#15392A;--warn:#FFDDA0;--warn-bg:#3A2F14;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.5;padding:0 max(16px,env(safe-area-inset-left,0px)) 80px}
+.wrap{max-width:820px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);font-weight:800;color:var(--brand);margin:0;text-wrap:balance}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:24px}
+.logo{font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:-1.2px;color:var(--brand)}
+.pill{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--brand);border:1.5px solid var(--brand);border-radius:999px;padding:5px 12px;white-space:nowrap}
+h1{font-size:clamp(28px,5vw,40px);line-height:1.1;letter-spacing:-0.025em;margin:4px 0 6px}
+.lede{color:var(--muted);margin:0 0 20px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:22px;margin:0 0 18px;box-shadow:0 10px 28px rgba(14,39,66,.08)}
+.card h2{font-size:21px;letter-spacing:-0.02em;margin-bottom:4px}
+.hint,.small,.meta{font-size:14px;color:var(--muted)}
+.hint{margin:0 0 12px}
+input[type=text]{font:inherit;width:100%;padding:10px 14px;border-radius:14px;border:1.5px solid var(--muted);background:var(--surface);color:var(--fg)}
+button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
+.btn{font-family:var(--display);font-weight:700;font-size:15px;min-height:42px;padding:0 20px;border-radius:999px;border:0;background:var(--cta-bg);color:var(--cta-fg);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center}
+.btn.ghost{background:transparent;color:var(--brand);border:1.5px solid var(--muted)}
+.btn.sm{min-height:34px;padding:0 14px;font-size:14px}
+.btn.danger.armed{border-color:var(--alert);color:var(--alert)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 18px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
+.stat b{display:block;font-family:var(--display);font-size:30px;line-height:1.1;color:var(--brand)}
+.stat span{font-size:13px;color:var(--muted)}
+.msg{border-radius:14px;padding:10px 14px;margin:0 0 14px;font-size:15px;border:1.5px solid}
+.msg.err{background:var(--alert-bg);border-color:var(--alert);color:var(--alert)}
+.msg.warn{background:var(--warn-bg);border-color:var(--warn);color:var(--warn)}
+.msg.ok{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+.alg{background:var(--alert-bg);border:1.5px solid var(--alert);color:var(--alert);border-radius:14px;padding:10px 14px;margin:0 0 14px}
+.alg b{display:block;margin-bottom:4px}
+.alg div{margin-top:3px}
+.it{padding:9px 0;border-top:1px solid var(--line)}
+.it:first-child{border-top:0}
+.it .nm{font-weight:700}
+.it .nm i{font-style:normal;font-family:var(--display);font-weight:800;color:var(--brand);margin-right:6px}
+.it .sub{font-size:14px;color:var(--muted);margin-left:30px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{border:1.5px solid var(--muted);border-radius:999px;padding:3px 12px;font-size:14px}
+.grp{border-top:1px solid var(--line);padding:12px 0}
+.grp:first-child{border-top:0}
+.gh{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;flex-wrap:wrap}
+.gh b{font-family:var(--display);font-weight:800;color:var(--brand);font-size:18px}
+.li{font-size:15px;margin:2px 0 0 0}
+.li .a{color:var(--alert);font-weight:600}
+.actions{display:flex;gap:8px}
+@media (max-width:620px){.stats{grid-template-columns:1fr 1fr 1fr}.stat b{font-size:24px}.card{padding:18px}}
+@media print{header,.noprint,.actions,.btn{display:none!important}body{background:#fff;color:#000}.card{box-shadow:none;border:1px solid #999}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><div class="logo">Team Meal</div><span class="pill">Organizer</span></header>
+  <div id="msg"></div>
+  <div id="main" hidden>
+    <h1 id="title"></h1>
+    <p class="lede" id="lede"></p>
+
+    <div class="stats">
+      <div class="stat"><b id="sPlayers">0</b><span id="sPlayersL">players ordered</span></div>
+      <div class="stat"><b id="sMeals">0</b><span>meals</span></div>
+      <div class="stat"><b id="sWait">0</b><span>still to order</span></div>
+    </div>
+
+    <div class="card noprint">
+      <h2>Send this link to your team chat</h2>
+      <p class="hint">Anyone with the link can place an order. They each get a private link to fix their own order<span id="dlHint"></span>.</p>
+      <input type="text" id="teamLink" readonly>
+      <div class="row"><button class="btn" id="copyTeam">Copy team link</button><span class="small" id="copied"></span></div>
+    </div>
+
+    <div class="card">
+      <h2>Kitchen order</h2>
+      <p class="hint">Totals to send the restaurant. Updates as people order or change things.</p>
+      <div id="alg"></div>
+      <div id="items"></div>
+      <div class="row noprint">
+        <button class="btn" id="copyKitchen">Copy kitchen order</button>
+        <button class="btn ghost" id="printBtn">Print</button>
+        <button class="btn ghost" id="refresh">Refresh</button>
+        <span class="small" id="updated"></span>
+      </div>
+    </div>
+
+    <div class="card" id="waitCard">
+      <h2>Still waiting on</h2>
+      <p class="hint">Player numbers on your roster with no order yet. Their parents can use the team link. You can also order for them.</p>
+      <div class="chips" id="wait"></div>
+      <div class="row noprint"><button class="btn ghost sm" id="copyNudge">Copy a reminder message</button><span class="small" id="nudgeDone"></span></div>
+    </div>
+
+    <div class="card">
+      <h2>Who ordered what</h2>
+      <p class="hint noprint">You can fix or remove any order, even after the deadline. Someone not coming? Open the order and take them off.</p>
+      <div id="groups"></div>
+    </div>
+  </div>
+</div>
+<script src="teammeal-config.js"></script>
+<script src="teammeal.js"></script>
+<script>
+const Q = new URLSearchParams(location.search);
+const TEAM_ID = Q.get("team") || "", KEY = Q.get("key") || "";
+const $ = s => document.querySelector(s);
+const esc = TM.esc;
+let DATA = null, timer = null;
+
+function say(kind, text) { $("#msg").innerHTML = text ? `<div class="msg ${kind}">${esc(text)}</div>` : ""; }
+
+async function load(quiet) {
+  if (!TM.enabled()) return say("warn", "Team links are not switched on yet.");
+  if (!TEAM_ID || !KEY) return say("err", "This organizer link is incomplete. Use the full link you got when you made the team.");
+  try {
+    DATA = await TM.get({action: "orders", id: TEAM_ID, key: KEY});
+  } catch (e) {
+    if (quiet) return say("warn", "Could not refresh. Showing the last numbers. " + e.message);
+    return say("err", e.code === "bad_key" ? "That organizer link is not valid. Check you copied the whole link." : e.code === "not_found" ? "We could not find this team." : e.message);
+  }
+  say("", "");
+  render();
+}
+
+function summary() { return TM.summarize(DATA.orders, DATA.team.menu); }
+
+function render() {
+  const t = DATA.team, orders = DATA.orders, s = summary();
+  $("#main").hidden = false;
+  document.title = t.name + " - Organizer";
+  $("#title").textContent = t.name;
+  $("#lede").textContent = (t.menu.restaurant || "") + (t.orderBy ? (t.closed ? " - ordering closed " : " - orders close ") + TM.fmtTime(t.orderBy) : " - no deadline set");
+  $("#dlHint").textContent = t.orderBy ? " until the deadline" : "";
+  TM.teams.save({id: t.id, name: t.name, link: TM.organizerLink(t.id, KEY), t: Date.now()});
+
+  const have = new Set(orders.map(o => String(o.order.num).replace(/^0+(?=\d)/, "")));
+  const norm = n => String(n).replace(/^0+(?=\d)/, "");
+  const roster = t.roster || [];
+  const waiting = roster.filter(p => !have.has(norm(p.number)));
+  const ordered = roster.filter(p => have.has(norm(p.number))).length;
+  $("#sPlayers").textContent = roster.length ? ordered + " / " + roster.length : String(have.size);
+  $("#sPlayersL").textContent = "players ordered";
+  $("#sMeals").textContent = s.meals;
+  $("#sWait").textContent = waiting.length;
+  $("#teamLink").value = TM.teamLink(t.id);
+
+  /* allergies */
+  const alg = s.allergies;
+  $("#alg").innerHTML = alg.length ? `<div class="alg"><b>⚠ Allergies and special requests</b>${alg.map(a =>
+    `<div>${esc(a.name)} (#${esc(a.num)}${a.items.length ? ", " + esc(a.items.join(" / ")) : ""}): ${esc(a.allergens.join(", "))}${a.allergens.length && a.notes ? ". " : ""}${esc(a.notes)}</div>`).join("")}</div>` : "";
+
+  /* item totals */
+  $("#items").innerHTML = s.items.length ? s.items.map(it => {
+    const subs = [];
+    it.options.forEach(o => subs.push(`${esc(o.name)}: ${o.choices.map(c => esc(c.label) + " ×" + c.n).join(", ")}`));
+    if (it.sides.length) subs.push("Sides: " + it.sides.map(c => esc(c.label) + " ×" + c.n).join(", "));
+    if (it.changes.length) subs.push("Changes: " + it.changes.map(c => esc(c.label) + " ×" + c.n).join(", "));
+    return `<div class="it"><div class="nm"><i>${it.count}×</i>${esc(it.name)}</div>${subs.map(x => `<div class="sub">${x}</div>`).join("")}</div>`;
+  }).join("") : '<p class="small">No orders yet.</p>';
+
+  /* waiting */
+  $("#waitCard").style.display = roster.length ? "" : "none";
+  $("#wait").innerHTML = waiting.length ? waiting.map(p => `<span class="chip">#${esc(p.number)} ${esc(p.first)}${p.last ? " " + esc(p.last.charAt(0)) + "." : ""}</span>`).join("") : '<span class="small">Everyone on the roster has ordered.</span>';
+  $("#copyNudge").style.display = waiting.length ? "" : "none";
+
+  /* who ordered what, grouped by player number */
+  const byNum = {};
+  orders.forEach(o => (byNum[o.order.num] = byNum[o.order.num] || []).push(o));
+  const nums = Object.keys(byNum).sort((a, b) => Number(a) - Number(b));
+  $("#groups").innerHTML = nums.length ? nums.map(n => {
+    const rosterP = roster.find(p => norm(p.number) === norm(n));
+    return `<div class="grp"><div class="gh"><b>#${esc(n)}${rosterP ? " " + esc(rosterP.first) : ""}</b></div>` + byNum[n].map(o => {
+      const lines = o.order.people.map(p => {
+        const bits = p.items.map(li => {
+          const x = Object.values(li.options || {}).concat(li.sides || []).concat(li.changes ? ["“" + li.changes + "”"] : []);
+          return esc(li.item) + (x.length ? ` <span class="meta">(${esc(x.join(", "))})</span>` : "");
+        }).join("; ");
+        const a = (p.allergies || []).length ? ` <span class="a">⚠ ${esc(p.allergies.join(", "))}</span>` : "";
+        const nt = p.notes ? ` <span class="meta">${esc(p.notes)}</span>` : "";
+        return `<div class="li"><b>${esc(p.name)}:</b> ${bits}${a}${nt}</div>`;
+      }).join("");
+      return `<div style="margin-top:8px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap"><div style="flex:1 1 320px">${lines}</div>
+        <div class="actions noprint"><a class="btn ghost sm" href="${esc(TM.orderLink(t.id, o.orderId, KEY))}">Edit</a><button class="btn ghost sm danger" data-rm="${esc(o.orderId)}">Remove</button></div></div>`;
+    }).join("") + "</div>";
+  }).join("") : '<p class="small">Nothing yet. Send the team link above.</p>';
+
+  document.querySelectorAll("[data-rm]").forEach(b => {
+    let armed = false;
+    b.onclick = async () => {
+      if (!armed) { armed = true; b.textContent = "Tap again to remove"; b.classList.add("armed"); setTimeout(() => { armed = false; b.textContent = "Remove"; b.classList.remove("armed"); }, 4000); return; }
+      b.disabled = true;
+      try { await TM.post({action: "deleteOrder", orderId: b.dataset.rm, key: KEY}); await load(); }
+      catch (e) { b.disabled = false; say("err", e.message); }
+    };
+  });
+  $("#updated").textContent = "Updated " + new Date().toLocaleTimeString([], {hour: "numeric", minute: "2-digit"});
+}
+
+function kitchenInfo() { const t = DATA.team; return {team: t.name, restaurant: t.menu.restaurant, orderBy: t.orderBy, summary: summary(), orders: DATA.orders}; }
+function copy(text, el, done) {
+  const ok = () => { el.textContent = done; setTimeout(() => { el.textContent = ""; }, 3000); };
+  if (navigator.clipboard) navigator.clipboard.writeText(text).then(ok, () => { el.textContent = "Copy did not work. Select the text and copy it."; });
+}
+$("#copyTeam").onclick = () => copy($("#teamLink").value, $("#copied"), "Copied");
+$("#teamLink").onclick = e => e.target.select();
+$("#copyKitchen").onclick = () => copy(TM.kitchenText(kitchenInfo()), $("#updated"), "Copied. Paste it into your email or text to the restaurant.");
+$("#printBtn").onclick = () => window.print();
+$("#refresh").onclick = () => load();
+$("#copyNudge").onclick = () => {
+  const t = DATA.team, norm = n => String(n).replace(/^0+(?=\d)/, "");
+  const have = new Set(DATA.orders.map(o => norm(o.order.num)));
+  const nums = (t.roster || []).filter(p => !have.has(norm(p.number))).map(p => "#" + p.number);
+  const msg = `Reminder: we still need orders for ${nums.join(", ")}.${t.orderBy ? " Please order by " + TM.fmtTime(t.orderBy) + "." : ""} ${TM.teamLink(t.id)}`;
+  copy(msg, $("#nudgeDone"), "Copied");
+};
+load();
+timer = setInterval(() => { if (!document.hidden && DATA) load(true); }, 60000);
+</script>
+</body>
+</html>

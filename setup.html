@@ -127,16 +127,29 @@ footer{padding-block:24px;color:var(--muted);font-size:14px}
 </section>
 
 <section class="card" aria-labelledby="h-review">
-<h2 id="h-review"><span class="num">4</span>Review and download</h2>
+<h2 id="h-review"><span class="num">4</span>Review and get your link</h2>
 <ul class="checks" id="checks"></ul>
-<div class="row"><button class="btn" id="download" type="button" disabled>Download team file</button></div>
-<p class="small" id="dlHint" style="margin-top:10px">Finish the steps above to download.</p>
+<div class="row"><button class="btn" id="getLink" type="button" disabled>Get team link</button><button class="btn ghost" id="download" type="button" disabled>Download backup file</button></div>
+<p class="small" id="dlHint" style="margin-top:10px">Finish the steps above to continue.</p>
+<div id="linkMsgs" aria-live="polite"></div>
+<div id="result" hidden>
+  <div class="msg ok"><b>Your team is ready.</b> Save the organizer link now. It is the only way to see orders and fix them, and we cannot recover it for you.</div>
+  <label for="shareLink">1. Send this to your team chat</label>
+  <input type="text" id="shareLink" readonly>
+  <div class="row"><button class="btn" id="copyShare" type="button">Copy team link</button><span class="small" id="shareDone"></span></div>
+  <label for="orgLink" style="margin-top:22px">2. Keep this private. It is for you only.</label>
+  <input type="text" id="orgLink" readonly>
+  <div class="row"><button class="btn" id="copyOrg" type="button">Copy organizer link</button><a class="btn ghost" id="openOrg" href="#">Open organizer page</a><span class="small" id="orgDone"></span></div>
+  <p class="small">Anyone who has your organizer link can change orders, so do not post it in the team chat. We also keep a copy on this device.</p>
+</div>
 </section>
 </main>
 
-<footer>Team Meal · teammeal.app. Prototype: publishing a shareable order link is not built yet.</footer>
+<footer>Team Meal · teammeal.app. Prototype.</footer>
 </div>
 
+<script src="teammeal-config.js"></script>
+<script src="teammeal.js"></script>
 <script>
 const $ = s => document.querySelector(s);
 const esc = t => String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
@@ -391,7 +404,10 @@ function updateReview() {
   $("#checks").innerHTML = items.map(i => "<li class=\"" + (i[0] ? "done" : "") + "\"><span class=\"dot\"></span><span>" + esc(i[1]) + "</span></li>").join("");
   const ready = !!team && !!roster && !!menu && link !== null;
   $("#download").disabled = !ready;
-  $("#dlHint").textContent = ready ? "This file has your team, roster, and menu in one place." : "Finish the steps above to download.";
+  $("#getLink").disabled = !ready || !TM.enabled();
+  $("#dlHint").textContent = !ready ? "Finish the steps above to continue." :
+    TM.enabled() ? "The team link lets your team order. The backup file keeps a copy of your team, roster and menu." :
+    "Team links are not switched on yet. You can download the backup file for now.";
 }
 $("#team").addEventListener("input", updateReview);
 $("#deadline").addEventListener("input", updateReview);
@@ -411,6 +427,33 @@ $("#download").onclick = () => {
   a.download = team.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-team.json";
   a.click();
 };
+$("#getLink").onclick = async () => {
+  const btn = $("#getLink"), msgs = $("#linkMsgs");
+  msgs.innerHTML = ""; btn.disabled = true; btn.textContent = "Making your link...";
+  const dl = $("#deadline").value;
+  try {
+    const r = await TM.post({ action: "createTeam", team: $("#team").value.trim(), orderBy: dl ? new Date(dl).getTime() : 0, menuLink: linkValue() || "", roster, menu });
+    TM.teams.save({ id: r.id, name: $("#team").value.trim(), link: TM.organizerLink(r.id, r.adminKey), t: Date.now() });
+    $("#shareLink").value = TM.teamLink(r.id);
+    $("#orgLink").value = TM.organizerLink(r.id, r.adminKey);
+    $("#openOrg").href = $("#orgLink").value;
+    $("#result").hidden = false;
+    btn.textContent = "Team link made";
+    $("#result").scrollIntoView({ behavior: "smooth", block: "nearest" });
+  } catch (e) {
+    btn.disabled = false; btn.textContent = "Get team link";
+    msgs.innerHTML = "<div class=\"msg err\"><b>Could not make the link.</b> " + esc(e.message) + "</div>";
+  }
+};
+function copyTo(sel, doneSel) {
+  const el = $(sel);
+  if (navigator.clipboard) navigator.clipboard.writeText(el.value).then(() => { $(doneSel).textContent = "Copied"; setTimeout(() => { $(doneSel).textContent = ""; }, 3000); });
+  else el.select();
+}
+$("#copyShare").onclick = () => copyTo("#shareLink", "#shareDone");
+$("#copyOrg").onclick = () => copyTo("#orgLink", "#orgDone");
+$("#shareLink").onclick = e => e.target.select();
+$("#orgLink").onclick = e => e.target.select();
 updateReview();
 </script>
 </body>

@@ -104,6 +104,8 @@ pre{white-space:pre-wrap;background:var(--input);border:1px solid var(--line);bo
   <button class="send" id="sendBtn">Send My Order</button>
 </div></div>
 
+<script src="teammeal-config.js"></script>
+<script src="teammeal.js"></script>
 <script>
 /* ---------- SETTINGS: change these ---------- */
 const Q = new URLSearchParams(location.search);
@@ -117,6 +119,15 @@ const SETTINGS = {
 };
 const MENU_FILE = (Q.get("menu") || "fordsgarage-menu.json").replace(/[^a-zA-Z0-9._-]/g, "");
 /* -------------------------------------------- */
+
+/* Team mode: a real team link (?team=ID) served by the Team Meal backend.
+   Old pilot mode (?menu=file.json&team=Name) keeps working exactly as before. */
+const TEAM_ID = (!Q.get("menu") && Q.get("team") && TM.enabled()) ? Q.get("team") : "";
+const TEAM_MODE = !!TEAM_ID;
+const EDIT_ID = TEAM_MODE ? (Q.get("order") || "") : "";
+const EDIT_KEY = TEAM_MODE ? (Q.get("key") || "") : "";
+const EDITING = !!(EDIT_ID && EDIT_KEY);
+let TEAMDATA = null, IS_ADMIN = false, LOCKED = false;
 
 let SIDES = [], MENU = [], RESTAURANT = "";
 const ALLERGENS = ["Gluten / Celiac","Dairy","Eggs","Peanuts","Tree Nuts","Shellfish","Fish","Soy","Sesame","Vegetarian","Other (explain below)"];
@@ -147,22 +158,93 @@ MENU.forEach((sec, si) => {
 });
 }
 
+function applyMenu(m) {
+  RESTAURANT = m.restaurant || ""; SIDES = m.sides || [];
+  MENU = m.sections.map(sec => ({s: sec.name, note: sec.note || "", items: sec.items.map(i => ({n: i.name, p: i.price, d: i.description || "", sides: i.sideCount || 0, opts: (i.options || []).map(o => ({k: o.name, v: o.choices}))}))}));
+  document.title = (RESTAURANT || "Team") + " Order";
+  $("#title").textContent = (SETTINGS.teamName ? SETTINGS.teamName + " - " : "") + (RESTAURANT ? RESTAURANT + " Order" : "Meal Order");
+  buildMenu();
+}
 async function loadMenu() {
   try {
+    if (TEAM_MODE) return await loadTeam();
     const r = await fetch(MENU_FILE, {cache: "no-store"}); if (!r.ok) throw 0;
-    const m = await r.json();
-    RESTAURANT = m.restaurant || ""; SIDES = m.sides || [];
-    MENU = m.sections.map(sec => ({s: sec.name, note: sec.note || "", items: sec.items.map(i => ({n: i.name, p: i.price, d: i.description || "", sides: i.sideCount || 0, opts: (i.options || []).map(o => ({k: o.name, v: o.choices}))}))}));
-    document.title = (RESTAURANT || "Team") + " Order";
-    $("#title").textContent = (SETTINGS.teamName ? SETTINGS.teamName + " - " : "") + (RESTAURANT ? RESTAURANT + " Order" : "Meal Order");
-    buildMenu();
+    applyMenu(await r.json());
   } catch (e) { $("#menu").innerHTML = '<p class="note">This menu could not be loaded. Check the link and try again.</p>'; }
+}
+
+/* ---------- team mode ---------- */
+function blockPage(msg) {
+  $("#formView").style.display = "none"; $("#bar").style.display = "none"; $("#history").style.display = "none";
+  const d = $("#doneView"); d.style.display = "block"; d.className = "card"; d.innerHTML = `<h2>${esc(msg)}</h2>`;
+}
+async function loadTeam() {
+  let res;
+  try {
+    res = EDITING ? await TM.get({action: "order", orderId: EDIT_ID, key: EDIT_KEY}) : await TM.get({action: "team", id: TEAM_ID});
+  } catch (e) {
+    return blockPage(e.code === "not_found" ? "We could not find this team or order. Check the link you were sent." :
+      e.code === "bad_key" ? "This change link is not valid. Use the link from your confirmation, or ask your organizer." : e.message);
+  }
+  TEAMDATA = res.team; SETTINGS.teamName = TEAMDATA.name; IS_ADMIN = !!res.isAdmin; LOCKED = !!res.locked;
+  applyMenu(TEAMDATA.menu);
+  const sub = $("#subtitle"); sub.style.display = "block";
+  sub.textContent = TEAMDATA.orderBy ? (TEAMDATA.closed ? "Ordering closed " : "Order by ") + TM.fmtTime(TEAMDATA.orderBy) : "";
+  if (!sub.textContent) sub.style.display = "none";
+  const dl = document.createElement("datalist"); dl.id = "nums";
+  dl.innerHTML = (TEAMDATA.numbers || []).map(n => `<option value="${esc(n)}">`).join("");
+  document.body.appendChild(dl); $("#num").setAttribute("list", "nums");
+  if (TEAMDATA.closed && !IS_ADMIN) {
+    return blockPage("Ordering for this team is closed." + (EDITING ? " Your order can no longer be changed here. Ask your organizer." : ""));
+  }
+  if (EDITING) loadExisting(res.order);
+  if (IS_ADMIN && EDITING) { sub.textContent = "Organizer edit. Changes save to this order."; sub.style.display = "block"; }
+  renderTeamExtras();
+}
+function loadExisting(o) {
+  $("#num").value = o.num;
+  const find = name => { for (const s of MENU) for (const it of s.items) if (it.n === name) return it; return null; };
+  people = []; cart = []; pidSeq = 0; uid = 0;
+  o.people.forEach((p, i) => {
+    people.push({id: i, name: p.name, allergies: p.allergies || [], notes: p.notes || "", open: !!((p.allergies || []).length || p.notes)});
+    p.items.forEach(li => { const it = find(li.item); if (it) cart.push({id: ++uid, pid: i, it, sel: li.options || {}, sides: (li.sides || []).slice(), note: li.changes || ""}); });
+  });
+  pidSeq = people.length - 1; activeId = 0;
+  $("#first").value = people[0].name;
+  renderPeople(); renderCart();
+  $("#sendBtn").textContent = "Save Changes";
+  const rm = document.createElement("button");
+  rm.className = "ghost"; rm.id = "removeOrder"; rm.textContent = "Remove this order"; rm.style.marginTop = "8px";
+  let armed = false;
+  rm.onclick = async () => {
+    if (!armed) { armed = true; rm.textContent = "Tap again to remove the whole order"; rm.style.borderColor = "var(--accent)"; return; }
+    rm.disabled = true;
+    try {
+      await TM.post({action: "deleteOrder", orderId: EDIT_ID, key: EDIT_KEY});
+      TM.mine.remove(EDIT_ID);
+      blockPage("This order was removed.");
+      $("#doneView").insertAdjacentHTML("beforeend", `<p><a style="color:var(--text)" href="${esc(TM.teamLink(TEAM_ID))}">Place a new order</a></p>`);
+    } catch (e) { rm.disabled = false; armed = false; rm.textContent = "Remove this order"; showErr(e.message); }
+  };
+  $("#cart").parentElement.appendChild(rm);
+}
+function renderTeamExtras() {
+  /* Orders placed from this phone for this team, each with its private change link. */
+  if (EDITING) { $("#history").style.display = "none"; return; }
+  const mine = TM.mine.list(TEAM_ID), el = $("#history");
+  if (!mine.length) { el.style.display = "none"; return; }
+  el.style.display = "block";
+  el.innerHTML = `<h2>Orders You Placed</h2><p class="note">Saved on this phone. Tap Change to fix an order${TEAMDATA && TEAMDATA.orderBy ? " until the deadline" : ""}.</p>` +
+    mine.map(x => `<div class="item"><div><div class="nm">#${esc(x.num)} · ${esc(x.names)}</div><div class="ds">${new Date(x.t).toLocaleString([], {month: "short", day: "numeric", hour: "numeric", minute: "2-digit"})}</div></div><a class="ghost" style="text-decoration:none" href="${esc(TM.orderLink(TEAM_ID, x.orderId, x.key))}">Change</a></div>`).join("");
 }
 /* people */
 function renderPeople() {
   const el = $("#people"); el.innerHTML = "";
   people.forEach(p => {
-    const l = document.createElement("label"); l.className = "chip" + (p.id === activeId ? " on" : "");
+    /* A div, not a label: a label hands taps on the name to the x button inside it and removes the person. */
+    const l = document.createElement("div"); l.className = "chip" + (p.id === activeId ? " on" : "");
+    l.setAttribute("role", "button"); l.tabIndex = 0;
+    l.onkeydown = e => { if ((e.key === "Enter" || e.key === " ") && e.target === l) { e.preventDefault(); activeId = p.id; renderPeople(); } };
     l.innerHTML = `<span>${esc(pLabel(p))}</span>` + (p.id !== 0 ? ` <button type="button" class="ghost x" data-delp="${p.id}" aria-label="Remove ${esc(p.name)}">×</button>` : "");
     l.onclick = e => { if (e.target.closest("[data-delp]")) return; activeId = p.id; renderPeople(); };
     el.appendChild(l);
@@ -257,6 +339,7 @@ function saveHistory(o) {
   try { const h = loadHistory(); h.unshift({t: Date.now(), name: o.first, num: o.num, total: o.total, text: o.text}); localStorage.setItem(HKEY, JSON.stringify(h.slice(0, 20))); } catch (e) {}
 }
 function renderHistory() {
+  if (TEAM_MODE) return;
   const h = loadHistory(), el = $("#history");
   if (!h.length) { el.style.display = "none"; return; }
   el.style.display = "block";
@@ -293,8 +376,38 @@ function buildOrder() {
       changes: l.note.trim(), allergies: g.p.allergies.join(", "), notes: g.p.notes.trim()})))};
 }
 
+async function sendTeamOrder(o) {
+  const btn = $("#sendBtn"), label = EDITING ? "Save Changes" : "Send My Order";
+  const groups = people.map(p => ({p, lines: cart.filter(l => l.pid === p.id)})).filter(g => g.lines.length);
+  const payload = {num: o.num, people: groups.map(g => ({
+    name: pLabel(g.p), allergies: g.p.allergies, notes: g.p.notes.trim(),
+    items: g.lines.map(l => ({item: l.it.n, options: l.sel, sides: l.sides, changes: l.note.trim()}))}))};
+  btn.disabled = true; btn.textContent = "Sending...";
+  try {
+    let orderId = EDIT_ID, key = EDIT_KEY;
+    if (EDITING) await TM.post({action: "updateOrder", orderId, key, order: payload});
+    else { const r = await TM.post({action: "submitOrder", teamId: TEAM_ID, order: payload}); orderId = r.orderId; key = r.editKey; }
+    const link = TM.orderLink(TEAM_ID, orderId, key);
+    const names = payload.people.map(p => p.name).join(", ");
+    if (!IS_ADMIN) TM.mine.save({teamId: TEAM_ID, orderId, key, num: o.num, names, t: Date.now()});
+    $("#formView").style.display = "none"; $("#bar").style.display = "none"; $("#history").style.display = "none";
+    const done = $("#doneView"); done.style.display = "block";
+    done.innerHTML = `<h2>${EDITING ? "Changes Saved" : "Order Sent. Thank You!"}</h2>
+      <p>${IS_ADMIN ? "The order was updated." : "Need to fix something? Use this private link" + (TEAMDATA.orderBy ? " until " + esc(TM.fmtTime(TEAMDATA.orderBy)) : "") + ". It is also saved on this phone."}</p>
+      ${IS_ADMIN ? "" : `<input readonly id="chg" value="${esc(link)}" onclick="this.select()">`}
+      <pre>${esc(o.text)}</pre>
+      ${IS_ADMIN ? "" : '<button class="ghost" id="copyLink">Copy Change Link</button> '}<a class="ghost" style="text-decoration:none;display:inline-block" href="${esc(IS_ADMIN ? location.href : TM.teamLink(TEAM_ID))}">${IS_ADMIN ? "Back to this order" : "Start Another Order"}</a>`;
+    const cl = $("#copyLink"); if (cl) cl.onclick = () => navigator.clipboard && navigator.clipboard.writeText(link).then(() => cl.textContent = "Copied");
+    window.scrollTo({top: 0});
+  } catch (e) {
+    btn.disabled = false; btn.textContent = label;
+    showErr(e.code === "closed" ? "Ordering just closed. Please ask your organizer to make the change." : e.message);
+  }
+}
+
 $("#sendBtn").onclick = async () => {
   const o = buildOrder(); if (!o) return;
+  if (TEAM_MODE) return sendTeamOrder(o);
   const done = $("#doneView");
   const subject = `Meal order: ${o.first} #${o.num}`;
   const show = (msg, extra = "") => {
