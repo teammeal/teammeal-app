@@ -288,8 +288,7 @@ footer{padding-block:40px;border-top:1px solid var(--line);display:flex;flex-wra
 </div>
 
 <script>
-/* The wait list is not connected to anything yet, so the forms show "Preview only". */
-var SCRIPT_URL = "";
+/* Wait list sign-ups are saved by the site's own /api. */
 (function(){
 var re=/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
 document.querySelectorAll('form.join').forEach(function(f){
@@ -300,12 +299,12 @@ f.addEventListener('submit',function(e){
 e.preventDefault();
 var v=input.value.trim().toLowerCase();
 if(!re.test(v)){say('Enter a valid email address, like you@example.com.','err');input.focus();return}
-if(!SCRIPT_URL){say('Preview only. Sign-ups turn on once the wait list link is added.','err');return}
 btn.disabled=true;
 var hp=f.querySelector('input[name=company]');
-var body=new URLSearchParams({email:v,company:hp?hp.value:''});
-fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',body:body}).then(function(){
-say('You are on the list. We will email you when Team Meal opens.','ok');input.value='';btn.disabled=false;
+fetch('/api',{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({action:'joinWaitlist',email:v,company:hp?hp.value:''})}).then(function(r){return r.json()}).then(function(j){
+btn.disabled=false;
+if(j&&j.ok){say('You are on the list. We will email you when Team Meal opens.','ok');input.value=''}
+else say((j&&j.message)||'Something went wrong saving your email. Please try again.','err');
 }).catch(function(){say('Something went wrong saving your email. Please try again.','err');btn.disabled=false});
 });
 });

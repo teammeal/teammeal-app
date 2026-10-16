@@ -19,6 +19,7 @@ const SCHEMA = [
     order_id TEXT PRIMARY KEY, team_id TEXT NOT NULL, edit_key TEXT NOT NULL, created INTEGER NOT NULL, updated INTEGER NOT NULL,
     player_number TEXT NOT NULL, people INTEGER NOT NULL, status TEXT NOT NULL DEFAULT 'active', payload TEXT NOT NULL)`,
   `CREATE INDEX IF NOT EXISTS orders_team ON orders (team_id, status)`,
+  `CREATE TABLE IF NOT EXISTS waitlist (email TEXT PRIMARY KEY, created INTEGER NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS hits (k TEXT NOT NULL, bucket INTEGER NOT NULL, n INTEGER NOT NULL, until INTEGER NOT NULL, PRIMARY KEY (k, bucket))`
 ];
 
@@ -27,7 +28,8 @@ const SCHEMA = [
 const LIMITS = {
   createTeam: [5, 24 * 3600e3],     /* 5 new teams per connection per day */
   submitOrder: [60, 3600e3],        /* 60 new orders per connection per hour (a whole rink on one wifi is fine) */
-  change: [120, 3600e3]             /* 120 edits or removals per connection per hour */
+  change: [120, 3600e3],            /* 120 edits or removals per connection per hour */
+  joinWaitlist: [10, 3600e3]        /* 10 wait list sign-ups per connection per hour */
 };
 const SITE_TEAMS_PER_DAY = 200;     /* all connections together */
 const ORDERS_PER_TEAM = 300;        /* one team link can hold at most this many orders */
@@ -43,7 +45,7 @@ export async function onRequest({ request, env }) {
   try {
     if (!env.DB) throw fail('server', 'The database is not connected yet.');
     if (!ready) { await env.DB.batch(SCHEMA.map(s => env.DB.prepare(s))); ready = true; }
-    const WRITES = { createTeam: 1, submitOrder: 1, updateOrder: 1, deleteOrder: 1 };
+    const WRITES = { joinWaitlist: 1, createTeam: 1, submitOrder: 1, updateOrder: 1, deleteOrder: 1 };
     let action, p;
     if (request.method === 'POST') {
       const text = await request.text();
@@ -65,6 +67,7 @@ export async function onRequest({ request, env }) {
       case 'order': return json({ ok: true, ...(await getOrder(db, p)) });
       case 'orders': return json({ ok: true, ...(await getOrders(db, p)) });
       case 'csv': return await getCsv(db, p);
+      case 'joinWaitlist': return json({ ok: true, ...(await joinWaitlist(db, p)) });
       case 'createTeam': return json({ ok: true, ...(await createTeam(db, p)) });
       case 'submitOrder': return json({ ok: true, ...(await submitOrder(db, p)) });
       case 'updateOrder': return json({ ok: true, ...(await updateOrder(db, p)) });
@@ -283,6 +286,15 @@ async function getCsv(db, p) {
 }
 
 /* ---------- writes ---------- */
+
+/* Wait list for the home page. Emails are read in the Cloudflare dashboard (D1 > teammeal > Explore data > waitlist). */
+async function joinWaitlist(db, b) {
+  if (str(b.company, 100)) return {}; /* hidden field only bots fill in: pretend it worked */
+  const email = str(b.email, 120).toLowerCase();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)) throw fail('invalid', 'Enter a valid email address, like you@example.com.');
+  await db.prepare('INSERT OR IGNORE INTO waitlist (email, created) VALUES (?, ?)').bind(email, Date.now()).run();
+  return {};
+}
 
 async function createTeam(db, b) {
   const name = str(b.team, 60);

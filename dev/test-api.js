@@ -142,5 +142,19 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
     assert.strictEqual(gas.env.DB.raw.prepare('SELECT COUNT(*) c FROM hits WHERE until = 1').get().c, 0);
   });
 
+  await ok('wait list: saves a valid email once, rejects junk, ignores bots', async () => {
+    assert((await gas.post({ action: 'joinWaitlist', email: ' Mom@Example.com ' })).ok);
+    assert((await gas.post({ action: 'joinWaitlist', email: 'mom@example.com' })).ok);
+    assert.strictEqual((await gas.post({ action: 'joinWaitlist', email: 'nope' })).error, 'invalid');
+    assert((await gas.post({ action: 'joinWaitlist', email: 'bot@example.com', company: 'Acme' })).ok);
+    const rows = gas.env.DB.raw.prepare('SELECT email FROM waitlist').all().map(r => r.email);
+    assert.deepStrictEqual(rows, ['mom@example.com']);
+    assert.strictEqual((await gas.get({ action: 'joinWaitlist', email: 'x@y.co' })).error, 'invalid');
+  });
+  await ok('wait list: 10 sign-ups an hour per connection', async () => {
+    for (let i = 0; i < 10; i++) assert((await gas.post({ action: 'joinWaitlist', email: `p${i}@example.com` }, 'spammer')).ok);
+    assert.strictEqual((await gas.post({ action: 'joinWaitlist', email: 'p11@example.com' }, 'spammer')).error, 'limit');
+  });
+
   console.log('\n' + passed + ' checks passed');
 })().catch(e => { console.error('FAILED:', e.stack || e.message); process.exit(1); });
