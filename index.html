@@ -25,7 +25,7 @@ header{display:flex;align-items:center;justify-content:space-between;gap:12px;pa
 .logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:26px;letter-spacing:-1.2px;color:var(--brand)}
 .logo svg{width:40px;height:40px;flex:none}
 .pill{font-size:14px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--brand);border:1.5px solid var(--brand);border-radius:999px;padding:6px 14px;white-space:nowrap}
-.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:48px;align-items:center;padding-block:48px 72px}
+.hero{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:48px;align-items:start;padding-block:48px 72px}
 .hero h1{font-size:clamp(38px,6vw,68px);line-height:1.04;letter-spacing:-0.03em}
 .lede{font-size:20px;color:var(--muted);max-width:34em;margin:20px 0 28px}
 form.join{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;max-width:520px}
@@ -69,7 +69,7 @@ footer{padding-block:40px;border-top:1px solid var(--line);display:flex;flex-wra
 .tab{font-family:var(--display);font-weight:700;font-size:15px;min-height:44px;border:0;border-radius:999px;background:transparent;color:var(--muted);cursor:pointer}
 .tab[aria-selected="true"]{background:var(--cta-bg);color:var(--cta-fg)}
 .tab:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
-.panel[hidden]{display:none}
+.panels{display:grid}.panel{grid-area:1/1}.panel[hidden]{display:block;visibility:hidden}
 .panel h3{margin:0 0 4px}
 .hint{font-size:14px;color:var(--muted);margin:0 0 12px}
 .hint.more{margin:12px 0 0}
@@ -84,6 +84,40 @@ footer{padding-block:40px;border-top:1px solid var(--line);display:flex;flex-wra
 .bar i{display:block;height:100%;background:var(--lime)}
 .wait{font-size:13px;font-weight:600;color:var(--muted);border:1.5px solid var(--muted);border-radius:999px;padding:2px 10px;white-space:nowrap}
 .ck{flex:none}
+
+.lbl{font-family:var(--display);font-weight:800;font-size:17px;color:var(--brand);margin:14px 0 8px}
+.who{background:var(--tint);border-radius:14px;padding:4px 14px 14px}
+.who .lbl{margin-top:10px}
+.fields{display:flex;gap:10px}
+.fld{flex:1;border:1.5px solid var(--line);background:var(--surface);border-radius:12px;padding:6px 12px}
+.fld.narrow{flex:0 0 84px}
+.fld small,.mf small{display:block;font-size:12px;font-weight:600;color:var(--muted)}
+.fld span,.mf span{font-weight:600}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.chip{font-size:14px;font-weight:600;border:1.5px solid var(--line);background:var(--surface);border-radius:999px;padding:5px 14px;color:var(--muted)}
+.chip.on{border-color:var(--brand);color:var(--brand)}
+.adding{border:1.5px solid var(--brand);border-radius:12px;padding:10px 14px;font-size:15px}
+.sec{display:flex;justify-content:space-between;font-weight:700;padding:10px 2px;border-bottom:1px solid var(--line);font-size:15px}
+.sec i{font-style:normal;color:var(--muted)}
+.item{display:flex;align-items:center;gap:10px;padding:9px 2px;border-bottom:1px dashed var(--line);font-size:15px}
+.item span{flex:1;font-weight:600}
+.item em{font-style:normal;color:var(--muted)}
+.item u{text-decoration:none;font-family:var(--display);font-weight:700;font-size:14px;background:var(--cta-bg);color:var(--cta-fg);border-radius:10px;padding:6px 16px}
+.item u.added{background:var(--tint);color:var(--brand);border:1.5px solid var(--brand);padding:4.5px 14.5px}
+.mine{border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:var(--bg)}
+.mh{display:flex;justify-content:space-between;margin-bottom:8px}
+.mh em{font-style:normal;color:var(--muted)}
+.mf{border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:5px 12px;margin-top:6px;font-size:15px}
+.mf.alg{border-color:var(--alert);background:var(--alert-bg)}
+.mf.alg span{color:var(--alert)}
+.send{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:14px;padding-top:12px;border-top:2px solid var(--brand)}
+.send small{display:block;font-size:12px;color:var(--muted)}
+.send b{font-family:var(--display);font-size:20px;color:var(--brand)}
+.send span{font-family:var(--display);font-weight:700;background:#2E9E5B;color:#fff;border-radius:12px;padding:12px 18px;white-space:nowrap}
+.row .flag{display:flex;width:fit-content}
+.who2{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid var(--line);font-size:15px}
+.who2 span:first-child{font-weight:600;white-space:nowrap}
+.who2 span:last-child{color:var(--muted);text-align:right}
 @media (max-width:860px){.hero{grid-template-columns:minmax(0,1fr);gap:36px;padding-block:24px 48px}.steps,.steps.four,.three{grid-template-columns:minmax(0,1fr)}.band{padding:28px 20px}.btn{align-self:stretch;width:100%}}
 @media (prefers-reduced-motion:no-preference){.btn{transition:filter .15s}}
 </style>
@@ -124,27 +158,40 @@ footer{padding-block:40px;border-top:1px solid var(--line);display:flex;flex-wra
 <button class="tab" role="tab" id="tab-k" aria-selected="false" aria-controls="panel-k" tabindex="-1" type="button">Kitchen</button>
 </div>
 
+<div class="panels">
 <div class="panel" role="tabpanel" id="panel-p" aria-labelledby="tab-p">
-<h3>Pick your meal</h3>
-<p class="hint">Order closes Friday at 6:00 PM. No account needed.</p>
-<div class="opt"><span class="dot"></span><b>Cheeseburger</b></div>
-<div class="opt"><span class="dot"></span><b>Chicken Tenders</b></div>
-<div class="opt"><span class="dot"></span><b>Caesar Salad</b></div>
-<div class="opt on"><span class="dot"></span><b>Veggie Burger</b></div>
-<div class="note"><small>Allergies or requests</small><b>Gluten allergy. Gluten-free bun, please.</b></div>
-<div class="fake">Add to Team Order</div>
+<div class="who">
+<div class="lbl">Who Is Eating?</div>
+<div class="fields"><div class="fld narrow"><small>Player #</small><span>17</span></div><div class="fld"><small>First name</small><span>Maya</span></div></div>
+<div class="chips"><span class="chip on">Maya</span><span class="chip">+ Add another person</span></div>
+</div>
+<div class="lbl">Pick Food</div>
+<div class="adding">Adding food for: <b>Maya</b></div>
+<div class="sec">Starters <i>▾</i></div>
+<div class="sec open">Burgers <i>▴</i></div>
+<div class="item"><span>Cheeseburger</span><em>$13.99</em><u>Add</u></div>
+<div class="item"><span>Chicken Sandwich</span><em>$12.99</em><u>Add</u></div>
+<div class="item"><span>Veggie Burger</span><em>$12.99</em><u class="added">Added</u></div>
+<div class="lbl">Your Order</div>
+<div class="mine">
+<div class="mh"><b>Veggie Burger</b><em>$12.99</em></div>
+<div class="mf"><small>Side</small><span>Fries</span></div>
+<div class="mf"><small>Changes to this item</small><span>Gluten-free bun</span></div>
+<div class="mf alg"><small>Allergies and edits for Maya</small><span>Gluten allergy</span></div>
+</div>
+<div class="send"><div><small>Estimated total (before tax and tip)</small><b>$12.99</b></div><span>Send My Order</span></div>
 </div>
 
 <div class="panel" role="tabpanel" id="panel-o" aria-labelledby="tab-o" hidden>
 <h3>20 of 22 have ordered</h3>
 <div class="bar" aria-hidden="true"><i style="width:91%"></i></div>
 <p class="hint">Order closes Friday at 6:00 PM.</p>
-<div class="row"><div><b>Maya R.</b><small>Veggie Burger</small><span class="flag"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L22 20H2Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M12 10V14.5M12 17.2V17.3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Gluten Allergy</span></div><svg class="ck" width="22" height="22" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" style="fill:var(--tile)"/><path d="M8 14.5L12.5 19L20 9.5" fill="none" stroke="#91D847" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-<div class="row"><div><b>Eli T.</b><small>Cheeseburger · no onions</small></div><svg class="ck" width="22" height="22" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" style="fill:var(--tile)"/><path d="M8 14.5L12.5 19L20 9.5" fill="none" stroke="#91D847" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-<div class="row"><div><b>Priya S.</b><small>Chicken Tenders · ranch on the side</small></div><svg class="ck" width="22" height="22" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" style="fill:var(--tile)"/><path d="M8 14.5L12.5 19L20 9.5" fill="none" stroke="#91D847" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-<div class="row"><div><b>Jordan K.</b><small>Hasn’t ordered yet</small></div><span class="wait">Waiting</span></div>
-<div class="row"><div><b>Sam W.</b><small>Hasn’t ordered yet</small></div><span class="wait">Waiting</span></div>
-<p class="hint more">+ 17 more. Each name stays attached to their order, so splitting the check is easy.</p>
+<div class="row"><div><b>Maya · #17</b><small>Veggie Burger</small><span class="flag"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L22 20H2Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M12 10V14.5M12 17.2V17.3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Gluten Allergy</span></div><svg class="ck" width="22" height="22" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" style="fill:var(--tile)"/><path d="M8 14.5L12.5 19L20 9.5" fill="none" stroke="#91D847" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div class="row"><div><b>Eli · #9</b><small>Cheeseburger · no onions</small></div><svg class="ck" width="22" height="22" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" style="fill:var(--tile)"/><path d="M8 14.5L12.5 19L20 9.5" fill="none" stroke="#91D847" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div class="row"><div><b>Priya · #12</b><small>Chicken Tenders · ranch on the side</small></div><svg class="ck" width="22" height="22" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" style="fill:var(--tile)"/><path d="M8 14.5L12.5 19L20 9.5" fill="none" stroke="#91D847" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div class="row"><div><b>Jordan · #4</b><small>Hasn’t ordered yet</small></div><span class="wait">Waiting</span></div>
+<div class="row"><div><b>Sam · #21</b><small>Hasn’t ordered yet</small></div><span class="wait">Waiting</span></div>
+<p class="hint more">+ 17 more. Each name and number stays attached to their order, so splitting the check is easy.</p>
 </div>
 
 <div class="panel" role="tabpanel" id="panel-k" aria-labelledby="tab-k" hidden>
@@ -155,6 +202,12 @@ footer{padding-block:40px;border-top:1px solid var(--line);display:flex;flex-wra
 <div class="row"><div><b>Caesar Salad</b><small>1 no croutons</small></div><div class="qty">4</div></div>
 <div class="row"><div><b>Veggie Burger</b><span class="flag"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L22 20H2Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M12 10V14.5M12 17.2V17.3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>1 Gluten Allergy Flag</span></div><div class="qty">2</div></div>
 <div class="total"><svg width="26" height="26" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" style="fill:var(--tile)"/><path d="M8 14.5L12.5 19L20 9.5" fill="none" stroke="#91D847" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>20 Meals Accounted For</div>
+<div class="lbl">Who Ordered What</div>
+<div class="who2"><span>Maya · #17</span><span>Veggie Burger</span></div>
+<div class="who2"><span>Eli · #9</span><span>Cheeseburger, no onions</span></div>
+<div class="who2"><span>Priya · #12</span><span>Chicken Tenders, ranch on the side</span></div>
+<p class="hint more">+ 17 more, grouped by player number so the check is easy to split.</p>
+</div>
 </div>
 </div>
 </div>
