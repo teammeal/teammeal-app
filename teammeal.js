@@ -110,37 +110,67 @@
     return { meals: meals, people: people, items: list, allergies: allergies };
   };
 
+  /* ---------- kitchen tickets: one per player number, everyone on it listed underneath ---------- */
+  TM.tickets = function (orders, roster) {
+    var norm = function (n) { return String(n).replace(/^0+(?=\d)/, ""); };
+    var byNum = {}, list = [];
+    (orders || []).forEach(function (o) {
+      if (!o.order) return;
+      var k = norm(o.order.num);
+      if (!byNum[k]) { byNum[k] = { num: o.order.num, people: [] }; list.push(byNum[k]); }
+      o.order.people.forEach(function (p) { byNum[k].people.push(p); });
+    });
+    list.sort(function (a, b) { return Number(a.num) - Number(b.num); });
+    list.forEach(function (t) {
+      var r = (roster || []).filter(function (p) { return norm(p.number) === norm(t.num); })[0];
+      t.label = r ? r.first : (t.people[0] ? t.people[0].name : "");
+      t.people = t.people.map(function (p) {
+        return {
+          name: p.name,
+          allergies: (p.allergies || []).slice(),
+          notes: (p.notes || "").trim(),
+          items: p.items.map(function (li) {
+            var lines = Object.keys(li.options || {}).map(function (k) { return k + ": " + li.options[k]; });
+            if ((li.sides || []).length) lines.push("Sides: " + li.sides.join(", "));
+            return { item: li.item, lines: lines, changes: (li.changes || "").trim() };
+          })
+        };
+      });
+    });
+    return list;
+  };
+
+  TM.ticketsText = function (tickets) {
+    var L = [];
+    tickets.forEach(function (t, i) {
+      L.push("TICKET " + (i + 1) + " - #" + t.num + " " + t.label);
+      t.people.forEach(function (p) {
+        if (p.allergies.length) L.push("  !! ALLERGY (" + p.name + "): " + p.allergies.join(", "));
+        if (p.notes) L.push("  !! NOTE (" + p.name + "): " + p.notes);
+        p.items.forEach(function (it) {
+          L.push("  " + p.name + ": " + it.item);
+          it.lines.forEach(function (x) { L.push("      " + x); });
+          if (it.changes) L.push("      CHANGES: " + it.changes);
+        });
+      });
+      L.push("");
+    });
+    return L.join("\n").replace(/\n+$/, "");
+  };
+
+  /* info: {team, restaurant, orderBy, summary, orders, roster} */
   TM.kitchenText = function (info) {
-    /* info: {team, restaurant, orderBy, summary, orders} */
     var s = info.summary, L = [];
     L.push((info.team || "Team order") + (info.restaurant ? " - " + info.restaurant : ""));
     L.push(s.meals + " meals" + (info.orderBy ? " - order closes " + TM.fmtTime(info.orderBy) : ""));
     var alg = s.allergies.filter(function (a) { return a.allergens.length; });
     if (alg.length) {
       L.push("", "ALLERGIES");
-      alg.forEach(function (a) { L.push("- " + a.name + " (#" + a.num + ", " + a.items.join(" / ") + "): " + a.allergens.join(", ") + (a.notes ? ". " + a.notes : "")); });
+      alg.forEach(function (a) { L.push("- " + a.name + " (#" + a.num + "): " + a.allergens.join(", ") + (a.notes ? ". " + a.notes : "")); });
     }
-    var req = s.allergies.filter(function (a) { return !a.allergens.length; });
-    if (req.length) {
-      L.push("", "SPECIAL REQUESTS");
-      req.forEach(function (a) { L.push("- " + a.name + " (#" + a.num + "): " + a.notes); });
-    }
-    L.push("", "ITEMS");
-    s.items.forEach(function (it) {
-      L.push(it.count + " x " + it.name);
-      it.options.forEach(function (o) { L.push("    " + o.name + ": " + o.choices.map(function (c) { return c.label + " x" + c.n; }).join(", ")); });
-      if (it.sides.length) L.push("    Sides: " + it.sides.map(function (c) { return c.label + " x" + c.n; }).join(", "));
-      if (it.changes.length) L.push("    Changes: " + it.changes.map(function (c) { return c.label + " x" + c.n; }).join(", "));
-    });
-    L.push("", "WHO ORDERED WHAT");
-    var byNum = {};
-    (info.orders || []).forEach(function (o) { if (o.order) (byNum[o.order.num] = byNum[o.order.num] || []).push(o); });
-    Object.keys(byNum).sort(function (a, b) { return Number(a) - Number(b); }).forEach(function (n) {
-      L.push("#" + n);
-      byNum[n].forEach(function (o) {
-        o.order.people.forEach(function (p) { L.push("  " + p.name + ": " + p.items.map(function (li) { return li.item; }).join(", ")); });
-      });
-    });
+    L.push("", "TOTALS");
+    s.items.forEach(function (it) { L.push(it.count + " x " + it.name); });
+    L.push("", "TICKETS", "", TM.ticketsText(TM.tickets(info.orders, info.roster)));
     return L.join("\n");
   };
 })();

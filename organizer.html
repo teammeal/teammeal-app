@@ -59,8 +59,24 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
 .li{font-size:15px;margin:2px 0 0 0}
 .li .a{color:var(--alert);font-weight:600}
 .actions{display:flex;gap:8px}
+input[type=email],input[type=tel]{font:inherit;width:100%;padding:10px 14px;border-radius:14px;border:1.5px solid var(--muted);background:var(--surface);color:var(--fg)}
+.tickets{display:grid;gap:14px;margin:0 0 16px}
+.tk{border:2px solid var(--fg);border-radius:14px;overflow:hidden;background:var(--surface);break-inside:avoid}
+.tk-h{display:flex;justify-content:space-between;align-items:baseline;gap:10px;background:var(--fg);color:var(--bg);padding:8px 14px;font-family:var(--display);font-weight:800;font-size:19px}
+.tk-h span{font-size:13px;font-weight:700;opacity:.85}
+.tk-b{padding:6px 14px 10px}
+.tk-p{padding:8px 0;border-top:1px dashed var(--line)}
+.tk-p:first-child{border-top:0}
+.tk-flag{background:var(--alert-bg);border:1.5px solid var(--alert);color:var(--alert);border-radius:10px;padding:4px 10px;margin:4px 0;font-weight:700;font-size:15px}
+.tk-it{margin:4px 0 0}
+.tk-it b{font-size:18px}
+.tk-it .ln{font-size:16px;margin-left:18px}
+.tk-it .ch{font-size:16px;margin-left:18px;font-weight:800;text-transform:uppercase}
+.tk-who{font-weight:800;color:var(--brand)}
+.send{display:grid;gap:10px;grid-template-columns:1fr 1fr;margin-top:14px}
+@media (max-width:620px){.send{grid-template-columns:1fr}}
 @media (max-width:620px){.stats{grid-template-columns:1fr 1fr 1fr}.stat b{font-size:24px}.card{padding:18px}}
-@media print{header,.noprint,.actions,.btn{display:none!important}body{background:#fff;color:#000}.card{box-shadow:none;border:1px solid #999}}
+@media print{.tk-h{background:#000!important;color:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}header,.noprint,.actions,.btn{display:none!important}body{background:#fff;color:#000}.card{box-shadow:none;border:1px solid #999}}
 </style>
 </head>
 <body>
@@ -85,16 +101,27 @@ button:focus-visible,a:focus-visible,input:focus-visible{outline:3px solid var(-
     </div>
 
     <div class="card">
-      <h2>Kitchen order</h2>
-      <p class="hint">Totals to send the restaurant. Updates as people order or change things.</p>
+      <h2>Kitchen tickets</h2>
+      <p class="hint">One ticket per player number. Allergies show in red. Updates as people order or change things.</p>
       <div id="alg"></div>
+      <div class="tickets" id="tickets"></div>
+      <h3 style="font-size:17px;margin:18px 0 6px">Totals</h3>
       <div id="items"></div>
-      <div class="row noprint">
-        <button class="btn" id="copyKitchen">Copy kitchen order</button>
-        <button class="btn ghost" id="printBtn">Print</button>
-        <a class="btn ghost" id="csvBtn" href="#">Download spreadsheet</a>
-        <button class="btn ghost" id="refresh">Refresh</button>
-        <span class="small" id="updated"></span>
+      <div class="noprint">
+        <div class="send">
+          <div><label class="small" for="toEmail">Restaurant email</label><input type="email" id="toEmail" placeholder="orders@restaurant.com" autocomplete="off"></div>
+          <div><label class="small" for="toPhone">Restaurant text number</label><input type="tel" id="toPhone" placeholder="412 555 0123" autocomplete="off"></div>
+        </div>
+        <div class="row">
+          <button class="btn" id="emailBtn">Email it</button>
+          <button class="btn" id="textBtn">Text it</button>
+          <button class="btn ghost" id="copyKitchen">Copy</button>
+          <button class="btn ghost" id="printBtn">Print</button>
+          <a class="btn ghost" id="csvBtn" href="#">Download spreadsheet</a>
+          <button class="btn ghost" id="refresh">Refresh</button>
+        </div>
+        <p class="small" id="updated" style="margin:8px 0 0"></p>
+        <p class="small" style="margin:4px 0 0">Email and Text open your own email or messages app with the order filled in. You press send, so nothing goes out until you do. Very long orders can be too big to text. Use Email or Copy for those.</p>
       </div>
     </div>
 
@@ -164,6 +191,16 @@ function render() {
   $("#alg").innerHTML = alg.length ? `<div class="alg"><b>⚠ Allergies and special requests</b>${alg.map(a =>
     `<div>${esc(a.name)} (#${esc(a.num)}${a.items.length ? ", " + esc(a.items.join(" / ")) : ""}): ${esc(a.allergens.join(", "))}${a.allergens.length && a.notes ? ". " : ""}${esc(a.notes)}</div>`).join("")}</div>` : "";
 
+  /* kitchen tickets */
+  const tk = TM.tickets(orders, roster);
+  $("#tickets").innerHTML = tk.length ? tk.map((t, i) => `<div class="tk"><div class="tk-h"><div>Ticket ${i + 1} · #${esc(t.num)} ${esc(t.label)}</div><span>${(n => n + (n === 1 ? " meal" : " meals"))(t.people.reduce((n, p) => n + p.items.length, 0))}</span></div><div class="tk-b">` +
+    t.people.map(p => `<div class="tk-p">` +
+      (p.allergies.length ? `<div class="tk-flag">⚠ ALLERGY · ${esc(p.name)}: ${esc(p.allergies.join(", "))}</div>` : "") +
+      (p.notes ? `<div class="tk-flag">⚠ NOTE · ${esc(p.name)}: ${esc(p.notes)}</div>` : "") +
+      p.items.map(it => `<div class="tk-it"><span class="tk-who">${esc(p.name)}:</span> <b>${esc(it.item)}</b>` +
+        it.lines.map(x => `<div class="ln">${esc(x)}</div>`).join("") + (it.changes ? `<div class="ch">Changes: ${esc(it.changes)}</div>` : "") + `</div>`).join("") +
+    `</div>`).join("") + `</div></div>`).join("") : '<p class="small">No orders yet.</p>';
+
   /* item totals */
   $("#items").innerHTML = s.items.length ? s.items.map(it => {
     const subs = [];
@@ -211,7 +248,7 @@ function render() {
   $("#updated").textContent = "Updated " + new Date().toLocaleTimeString([], {hour: "numeric", minute: "2-digit"});
 }
 
-function kitchenInfo() { const t = DATA.team; return {team: t.name, restaurant: t.menu.restaurant, orderBy: t.orderBy, summary: summary(), orders: DATA.orders}; }
+function kitchenInfo() { const t = DATA.team; return {team: t.name, restaurant: t.menu.restaurant, orderBy: t.orderBy, summary: summary(), orders: DATA.orders, roster: DATA.team.roster}; }
 function copy(text, el, done) {
   const ok = () => { el.textContent = done; setTimeout(() => { el.textContent = ""; }, 3000); };
   if (navigator.clipboard) navigator.clipboard.writeText(text).then(ok, () => { el.textContent = "Copy did not work. Select the text and copy it."; });
@@ -220,6 +257,23 @@ $("#copyTeam").onclick = () => copy($("#teamLink").value, $("#copied"), "Copied"
 $("#teamLink").onclick = e => e.target.select();
 $("#copyKitchen").onclick = () => copy(TM.kitchenText(kitchenInfo()), $("#updated"), "Copied. Paste it into your email or text to the restaurant.");
 $("#printBtn").onclick = () => window.print();
+function subject() { const t = DATA.team; return t.name + " order - " + summary().meals + " meals" + (t.orderBy ? ", " + TM.fmtTime(t.orderBy) : ""); }
+function saved(k, el) { try { el.value = localStorage.getItem("teammeal_" + TEAM_ID + "_" + k) || ""; el.oninput = () => { try { localStorage.setItem("teammeal_" + TEAM_ID + "_" + k, el.value); } catch (e) {} }; } catch (e) {} }
+saved("email", $("#toEmail")); saved("phone", $("#toPhone"));
+$("#emailBtn").onclick = () => {
+  const body = TM.kitchenText(kitchenInfo());
+  const to = $("#toEmail").value.trim();
+  const href = "mailto:" + encodeURIComponent(to).replace(/%40/g, "@") + "?subject=" + encodeURIComponent(subject()) + "&body=" + encodeURIComponent(body);
+  if (href.length > 1900) { copy(body, $("#updated"), "That order is too long to fill in automatically, so it is copied. Paste it into your email."); location.href = "mailto:" + to + "?subject=" + encodeURIComponent(subject()); return; }
+  location.href = href;
+};
+$("#textBtn").onclick = () => {
+  const body = TM.kitchenText(kitchenInfo());
+  const to = $("#toPhone").value.replace(/[^\d+]/g, "");
+  const href = "sms:" + to + "?&body=" + encodeURIComponent(body);
+  if (href.length > 1900) { copy(body, $("#updated"), "That order is too long to text in one go, so it is copied. Paste it into a message, or use Email."); return; }
+  location.href = href;
+};
 $("#refresh").onclick = () => load();
 $("#copyNudge").onclick = () => {
   const t = DATA.team, norm = n => String(n).replace(/^0+(?=\d)/, "");
