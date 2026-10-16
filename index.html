@@ -122,6 +122,11 @@ footer{padding-block:40px;border-top:1px solid var(--line);display:flex;flex-wra
 .alrt .flag{margin:0 0 4px;background:transparent}
 .alrt b{display:block;font-weight:700}
 .alrt small{display:block;font-size:14px}
+.grp{border-top:1px solid var(--line);padding:8px 0 4px}
+.gh{display:flex;justify-content:space-between;font-size:14px;color:var(--muted)}
+.gh b{font-family:var(--display);font-size:16px;color:var(--brand)}
+.li{display:grid;grid-template-columns:64px 1fr;gap:8px;padding:3px 0;font-size:15px}
+.li span{color:var(--muted)}
 @media (max-width:860px){.hero{grid-template-columns:minmax(0,1fr);gap:36px;padding-block:24px 48px}.steps,.steps.four,.three{grid-template-columns:minmax(0,1fr)}.band{padding:28px 20px}.btn{align-self:stretch;width:100%}}
 @media (prefers-reduced-motion:no-preference){.btn{transition:filter .15s}}
 </style>
@@ -209,10 +214,14 @@ footer{padding-block:40px;border-top:1px solid var(--line);display:flex;flex-wra
 <div class="row"><div><b>Veggie Burger</b><small>Fries ×3</small><small>Gluten-free bun ×1</small></div><div class="qty">3</div></div>
 <div class="total"><svg width="26" height="26" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" style="fill:var(--tile)"/><path d="M8 14.5L12.5 19L20 9.5" fill="none" stroke="#91D847" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>30 Meals Accounted For</div>
 <div class="lbl">Who Ordered What</div>
-<div class="who2"><span>#17 · Alex, Dana, Jo</span><span>Veggie Burger (gluten allergy), Cheeseburger, Caesar Salad</span></div>
-<div class="who2"><span>#9 · Eli, Mia</span><span>Cheeseburger (no onions), Chicken Tenders</span></div>
-<div class="who2"><span>#12 · Priya, Raj, Anu, Leela</span><span>Tenders ×2, Cheeseburger, Caesar Salad</span></div>
-<p class="hint more">+ 7 more players. Grouped by player number, so the check is easy to split.</p>
+<div class="grp"><div class="gh"><b>#17</b><span>3 orders</span></div>
+<div class="li"><b>Alex</b><span>Veggie Burger, gluten allergy</span></div>
+<div class="li"><b>Dana</b><span>Cheeseburger</span></div>
+<div class="li"><b>Jo</b><span>Caesar Salad</span></div></div>
+<div class="grp"><div class="gh"><b>#9</b><span>2 orders</span></div>
+<div class="li"><b>Eli</b><span>Cheeseburger, no onions</span></div>
+<div class="li"><b>Mia</b><span>Chicken Tenders</span></div></div>
+<p class="hint more">+ 8 more players, grouped by player number so the check is easy to split.</p>
 </div>
 </div>
 </div>
