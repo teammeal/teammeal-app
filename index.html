@@ -63,6 +63,27 @@ section h2{font-size:clamp(30px,4.2vw,44px);line-height:1.08;letter-spacing:-0.0
 .band{background:var(--tint);border-radius:28px;padding:48px;display:grid;grid-template-columns:minmax(0,1fr);gap:20px;border:0}
 .cta{text-align:left}
 footer{padding-block:40px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;color:var(--muted);font-size:15px}
+
+.demo .eyebrow{margin-bottom:12px}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--tint);border-radius:999px;padding:4px;margin-bottom:18px}
+.tab{font-family:var(--display);font-weight:700;font-size:15px;min-height:44px;border:0;border-radius:999px;background:transparent;color:var(--muted);cursor:pointer}
+.tab[aria-selected="true"]{background:var(--cta-bg);color:var(--cta-fg)}
+.tab:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
+.panel[hidden]{display:none}
+.panel h3{margin:0 0 4px}
+.hint{font-size:14px;color:var(--muted);margin:0 0 12px}
+.hint.more{margin:12px 0 0}
+.opt{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid var(--line);border-radius:14px;margin-bottom:8px}
+.opt.on{border-color:var(--brand);background:var(--tint)}
+.dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--muted);flex:none}
+.opt.on .dot{border-color:var(--brand);background:radial-gradient(circle,var(--brand) 0 45%,transparent 50%)}
+.note{border:1.5px dashed var(--muted);border-radius:14px;padding:10px 14px;margin:12px 0 16px}
+.note small{display:block;font-size:13px;color:var(--muted)}
+.fake{font-family:var(--display);font-weight:700;text-align:center;padding:13px;border-radius:999px;background:var(--cta-bg);color:var(--cta-fg)}
+.bar{height:10px;border-radius:999px;background:var(--tint);overflow:hidden;margin:6px 0 8px}
+.bar i{display:block;height:100%;background:var(--lime)}
+.wait{font-size:13px;font-weight:600;color:var(--muted);border:1.5px solid var(--muted);border-radius:999px;padding:2px 10px;white-space:nowrap}
+.ck{flex:none}
 @media (max-width:860px){.hero{grid-template-columns:minmax(0,1fr);gap:36px;padding-block:24px 48px}.steps,.steps.four,.three{grid-template-columns:minmax(0,1fr)}.band{padding:28px 20px}.btn{align-self:stretch;width:100%}}
 @media (prefers-reduced-motion:no-preference){.btn{transition:filter .15s}}
 </style>
@@ -95,14 +116,46 @@ footer{padding-block:40px;border-top:1px solid var(--line);display:flex;flex-wra
 <p class="small">Early members hear first when Team Meal opens.</p>
 </div>
 
-<div class="card" aria-label="Example kitchen summary">
-<div class="eyebrow">Kitchen Summary</div>
-<h3>Hawks 10U Team Lunch</h3><div class="row" style="border-top:0;padding-top:0"><div><b>Sent to Kitchen at 10:30 AM</b><small>Pickup at 12:15 PM</small></div></div>
+<div class="card demo" aria-label="Example order, seen three ways">
+<div class="eyebrow">Hawks 10U Team Lunch</div>
+<div class="tabs" role="tablist" aria-label="View the same order as">
+<button class="tab" role="tab" id="tab-p" aria-selected="true" aria-controls="panel-p" type="button">Participant</button>
+<button class="tab" role="tab" id="tab-o" aria-selected="false" aria-controls="panel-o" tabindex="-1" type="button">Organizer</button>
+<button class="tab" role="tab" id="tab-k" aria-selected="false" aria-controls="panel-k" tabindex="-1" type="button">Kitchen</button>
+</div>
+
+<div class="panel" role="tabpanel" id="panel-p" aria-labelledby="tab-p">
+<h3>Pick your meal</h3>
+<p class="hint">Order closes Friday at 6:00 PM. No account needed.</p>
+<div class="opt"><span class="dot"></span><b>Cheeseburger</b></div>
+<div class="opt"><span class="dot"></span><b>Chicken Tenders</b></div>
+<div class="opt"><span class="dot"></span><b>Caesar Salad</b></div>
+<div class="opt on"><span class="dot"></span><b>Veggie Burger</b></div>
+<div class="note"><small>Allergies or requests</small><b>Gluten allergy. Gluten-free bun, please.</b></div>
+<div class="fake">Add to Team Order</div>
+</div>
+
+<div class="panel" role="tabpanel" id="panel-o" aria-labelledby="tab-o" hidden>
+<h3>20 of 22 have ordered</h3>
+<div class="bar" aria-hidden="true"><i style="width:91%"></i></div>
+<p class="hint">Order closes Friday at 6:00 PM.</p>
+<div class="row"><div><b>Maya R.</b><small>Veggie Burger</small><span class="flag"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L22 20H2Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M12 10V14.5M12 17.2V17.3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Gluten Allergy</span></div><svg class="ck" width="22" height="22" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" style="fill:var(--tile)"/><path d="M8 14.5L12.5 19L20 9.5" fill="none" stroke="#91D847" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div class="row"><div><b>Eli T.</b><small>Cheeseburger · no onions</small></div><svg class="ck" width="22" height="22" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" style="fill:var(--tile)"/><path d="M8 14.5L12.5 19L20 9.5" fill="none" stroke="#91D847" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div class="row"><div><b>Priya S.</b><small>Chicken Tenders · ranch on the side</small></div><svg class="ck" width="22" height="22" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" style="fill:var(--tile)"/><path d="M8 14.5L12.5 19L20 9.5" fill="none" stroke="#91D847" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div class="row"><div><b>Jordan K.</b><small>Hasn’t ordered yet</small></div><span class="wait">Waiting</span></div>
+<div class="row"><div><b>Sam W.</b><small>Hasn’t ordered yet</small></div><span class="wait">Waiting</span></div>
+<p class="hint more">+ 17 more. Each name stays attached to their order, so splitting the check is easy.</p>
+</div>
+
+<div class="panel" role="tabpanel" id="panel-k" aria-labelledby="tab-k" hidden>
+<h3>Kitchen Summary</h3>
+<div class="row" style="border-top:0;padding-top:0"><div><b>Sent to Kitchen at 10:30 AM</b><small>Pickup at 12:15 PM</small></div></div>
 <div class="row"><div><b>Cheeseburger</b><small>2 no onions · 1 no cheese</small></div><div class="qty">8</div></div>
 <div class="row"><div><b>Chicken Tenders</b><small>2 ranch on the side</small></div><div class="qty">6</div></div>
 <div class="row"><div><b>Caesar Salad</b><small>1 no croutons</small></div><div class="qty">4</div></div>
 <div class="row"><div><b>Veggie Burger</b><span class="flag"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L22 20H2Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M12 10V14.5M12 17.2V17.3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>1 Gluten Allergy Flag</span></div><div class="qty">2</div></div>
 <div class="total"><svg width="26" height="26" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" style="fill:var(--tile)"/><path d="M8 14.5L12.5 19L20 9.5" fill="none" stroke="#91D847" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>20 Meals Accounted For</div>
+</div>
 </div>
 </div>
 
@@ -182,6 +235,15 @@ fetch(SCRIPT_URL,{method:'POST',mode:'no-cors',body:body}).then(function(){
 say('You are on the list. We will email you when Team Meal opens.','ok');input.value='';btn.disabled=false;
 }).catch(function(){say('Something went wrong saving your email. Please try again.','err');btn.disabled=false});
 });
+});
+})();
+
+(function(){
+var tabs=[].slice.call(document.querySelectorAll('.demo .tab'));
+function show(t){tabs.forEach(function(x){var on=x===t;x.setAttribute('aria-selected',on);x.tabIndex=on?0:-1;document.getElementById(x.getAttribute('aria-controls')).hidden=!on});t.focus()}
+tabs.forEach(function(t,i){
+t.addEventListener('click',function(){show(t)});
+t.addEventListener('keydown',function(e){var n=e.key==='ArrowRight'?(i+1)%3:e.key==='ArrowLeft'?(i+2)%3:-1;if(n>=0){e.preventDefault();show(tabs[n])}});
 });
 })();
 </script>
