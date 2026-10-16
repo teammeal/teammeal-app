@@ -116,7 +116,7 @@ footer{padding-block:40px;border-top:1px solid var(--line);display:flex;flex-wra
 .send span{flex:1;text-align:center;font-family:var(--display);font-weight:700;background:#2E9E5B;color:#fff;border-radius:12px;padding:12px 18px;white-space:nowrap}
 .row .flag{display:flex;width:fit-content}
 .who2{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-top:1px solid var(--line);font-size:15px}
-.who2 span:first-child{font-weight:600;white-space:nowrap}
+.who2 span:first-child{font-weight:600}
 .who2 span:last-child{color:var(--muted);text-align:right}
 .alrt{background:var(--alert-bg);border:1.5px solid var(--alert);border-radius:12px;padding:10px 14px;margin-bottom:6px;color:var(--alert)}
 .alrt .flag{margin:0 0 4px;background:transparent}
@@ -167,7 +167,8 @@ footer{padding-block:40px;border-top:1px solid var(--line);display:flex;flex-wra
 <div class="who">
 <div class="lbl">Who Is Eating?</div>
 <div class="fields"><div class="fld narrow"><small>Player #</small><span>17</span></div><div class="fld"><small>First name</small><span>Alex</span></div></div>
-<div class="chips"><span class="chip on">Alex</span><span class="chip">+ Add another person</span></div>
+<div class="chips"><span class="chip on">Alex</span><span class="chip">Dana</span><span class="chip">Jo</span><span class="chip">+ Add another person</span></div>
+<p class="hint" style="margin:10px 0 0">One player number covers everyone eating.</p>
 </div>
 <div class="lbl">Pick Food</div>
 <div class="adding">Adding food for: <b>Alex</b></div>
@@ -187,31 +188,31 @@ footer{padding-block:40px;border-top:1px solid var(--line);display:flex;flex-wra
 </div>
 
 <div class="panel" role="tabpanel" id="panel-o" aria-labelledby="tab-o" hidden>
-<h3>20 of 22 have ordered</h3>
-<div class="bar" aria-hidden="true"><i style="width:91%"></i></div>
-<p class="hint">Order closes Friday at 6:00 PM.</p>
-<div class="row"><div><b>Alex · #17</b><small>Veggie Burger</small><span class="flag"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L22 20H2Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M12 10V14.5M12 17.2V17.3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Gluten Allergy</span></div><svg class="ck" width="22" height="22" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" style="fill:var(--tile)"/><path d="M8 14.5L12.5 19L20 9.5" fill="none" stroke="#91D847" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-<div class="row"><div><b>Eli · #9</b><small>Cheeseburger · no onions</small></div><svg class="ck" width="22" height="22" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" style="fill:var(--tile)"/><path d="M8 14.5L12.5 19L20 9.5" fill="none" stroke="#91D847" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-<div class="row"><div><b>Priya · #12</b><small>Chicken Tenders · ranch on the side</small></div><svg class="ck" width="22" height="22" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" style="fill:var(--tile)"/><path d="M8 14.5L12.5 19L20 9.5" fill="none" stroke="#91D847" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-<div class="row"><div><b>Jordan · #4</b><small>Hasn’t ordered yet</small></div><span class="wait">Waiting</span></div>
-<div class="row"><div><b>Sam · #21</b><small>Hasn’t ordered yet</small></div><span class="wait">Waiting</span></div>
-<p class="hint more">+ 17 more. Each name and number stays attached to their order, so splitting the check is easy.</p>
+<h3>10 of 12 players have ordered</h3>
+<div class="bar" aria-hidden="true"><i style="width:83%"></i></div>
+<p class="hint">30 meals so far. Order closes Friday at 6:00 PM.</p>
+<div class="row"><div><b>#17 · Alex, Dana, Jo</b><small>3 orders · Veggie Burger, Cheeseburger, Caesar Salad</small><span class="flag"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L22 20H2Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M12 10V14.5M12 17.2V17.3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Gluten Allergy</span></div><svg class="ck" width="22" height="22" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" style="fill:var(--tile)"/><path d="M8 14.5L12.5 19L20 9.5" fill="none" stroke="#91D847" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div class="row"><div><b>#9 · Eli, Mia</b><small>2 orders · Cheeseburger (no onions), Chicken Tenders</small></div><svg class="ck" width="22" height="22" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" style="fill:var(--tile)"/><path d="M8 14.5L12.5 19L20 9.5" fill="none" stroke="#91D847" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div class="row"><div><b>#12 · Priya, Raj, Anu, Leela</b><small>4 orders · Tenders ×2, Cheeseburger, Caesar Salad</small></div><svg class="ck" width="22" height="22" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" style="fill:var(--tile)"/><path d="M8 14.5L12.5 19L20 9.5" fill="none" stroke="#91D847" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+<div class="row"><div><b>#4 · Jordan</b><small>Hasn’t ordered yet</small></div><span class="wait">Waiting</span></div>
+<div class="row"><div><b>#21 · Sam</b><small>Hasn’t ordered yet</small></div><span class="wait">Waiting</span></div>
+<p class="hint more">+ 7 more players. Most numbers have two to five people eating, all grouped under one number.</p>
 </div>
 
 <div class="panel" role="tabpanel" id="panel-k" aria-labelledby="tab-k" hidden>
 <h3>Order for the Kitchen</h3>
 <p class="hint">One clean list, ready to send or print.</p>
 <div class="alrt"><span class="flag"><svg width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3L22 20H2Z" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linejoin="round"/><path d="M12 10V14.5M12 17.2V17.3" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>Allergy</span><b>Alex · #17 · Veggie Burger</b><small>Gluten allergy. Gluten-free bun.</small></div>
-<div class="row"><div><b>Cheeseburger</b><small>Medium ×5 · Medium Well ×3</small><small>No onions ×2 · No cheese ×1</small></div><div class="qty">8</div></div>
-<div class="row"><div><b>Chicken Tenders</b><small>Ranch ×4 · BBQ ×2</small><small>Ranch on the side ×2</small></div><div class="qty">6</div></div>
-<div class="row"><div><b>Caesar Salad</b><small>No croutons ×1</small></div><div class="qty">4</div></div>
-<div class="row"><div><b>Veggie Burger</b><small>Fries ×2</small><small>Gluten-free bun ×1</small></div><div class="qty">2</div></div>
-<div class="total"><svg width="26" height="26" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" style="fill:var(--tile)"/><path d="M8 14.5L12.5 19L20 9.5" fill="none" stroke="#91D847" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>20 Meals Accounted For</div>
+<div class="row"><div><b>Cheeseburger</b><small>Medium ×7 · Medium Well ×5</small><small>No onions ×3 · No cheese ×1</small></div><div class="qty">12</div></div>
+<div class="row"><div><b>Chicken Tenders</b><small>Ranch ×6 · BBQ ×3</small><small>Ranch on the side ×2</small></div><div class="qty">9</div></div>
+<div class="row"><div><b>Caesar Salad</b><small>No croutons ×2</small></div><div class="qty">6</div></div>
+<div class="row"><div><b>Veggie Burger</b><small>Fries ×3</small><small>Gluten-free bun ×1</small></div><div class="qty">3</div></div>
+<div class="total"><svg width="26" height="26" viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="14" style="fill:var(--tile)"/><path d="M8 14.5L12.5 19L20 9.5" fill="none" stroke="#91D847" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/></svg>30 Meals Accounted For</div>
 <div class="lbl">Who Ordered What</div>
-<div class="who2"><span>Alex · #17</span><span>Veggie Burger, gluten allergy</span></div>
-<div class="who2"><span>Eli · #9</span><span>Cheeseburger, no onions</span></div>
-<div class="who2"><span>Priya · #12</span><span>Chicken Tenders, ranch on the side</span></div>
-<p class="hint more">+ 17 more, grouped by player number so the check is easy to split.</p>
+<div class="who2"><span>#17 · Alex, Dana, Jo</span><span>Veggie Burger (gluten allergy), Cheeseburger, Caesar Salad</span></div>
+<div class="who2"><span>#9 · Eli, Mia</span><span>Cheeseburger (no onions), Chicken Tenders</span></div>
+<div class="who2"><span>#12 · Priya, Raj, Anu, Leela</span><span>Tenders ×2, Cheeseburger, Caesar Salad</span></div>
+<p class="hint more">+ 7 more players. Grouped by player number, so the check is easy to split.</p>
 </div>
 </div>
 </div>
