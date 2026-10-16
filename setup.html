@@ -1,0 +1,417 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex">
+<title>Team Meal Organizer Setup (prototype)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root{
+--bg:#FBF8F2;--surface:#FFFFFF;--fg:#13283F;--muted:#4A5A6E;--line:#E6DFD2;--brand:#143758;
+--cta-bg:#143758;--cta-fg:#FFFFFF;--tint:#EAF0F6;--tile:#143758;--lime:#91D847;--alert:#8B2424;--alert-bg:#FBECEC;--ok:#1E6B3E;--ok-bg:#E9F6EE;--warn:#7A5300;--warn-bg:#FFF4D6;
+--display:'Montserrat',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){:root{--bg:#0E2742;--surface:#143758;--fg:#FFFFFF;--muted:#B9C7D8;--line:#2A4A6C;--brand:#FFFFFF;--cta-bg:#91D847;--cta-fg:#0E2742;--tint:#10304F;--tile:#1B4B7A;--alert:#FFB4B4;--alert-bg:#3A1E24;--ok:#9BE3B5;--ok-bg:#15392A;--warn:#FFDDA0;--warn-bg:#3A2F14;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.55;padding:0 max(16px,env(safe-area-inset-left,0px)) 80px}
+.wrap{max-width:760px;margin:0 auto}
+h1,h2,h3{font-family:var(--display);font-weight:800;color:var(--brand);margin:0;text-wrap:balance}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-block:24px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:-1.2px;color:var(--brand)}
+.logo svg{width:36px;height:36px;flex:none}
+.pill{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--brand);border:1.5px solid var(--brand);border-radius:999px;padding:5px 12px;white-space:nowrap}
+h1{font-size:clamp(30px,5vw,42px);line-height:1.08;letter-spacing:-0.025em;margin:8px 0 8px}
+.lede{color:var(--muted);margin:0 0 24px}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:24px;margin:0 0 20px;box-shadow:0 10px 28px rgba(14,39,66,.08)}
+.card h2{font-size:22px;letter-spacing:-0.02em;margin-bottom:4px;display:flex;align-items:center;gap:10px}
+.num{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:var(--cta-bg);color:var(--cta-fg);font-size:15px;flex:none}
+.hint{font-size:15px;color:var(--muted);margin:0 0 14px}
+label{display:block;font-size:14px;font-weight:600;margin:0 0 6px}
+input[type=text],input[type=url],input[type=datetime-local],textarea{font:inherit;width:100%;padding:11px 14px;border-radius:14px;border:1.5px solid var(--muted);background:var(--surface);color:var(--fg)}
+textarea{min-height:150px;resize:vertical;font-size:15px;line-height:1.45}
+textarea.mono,pre.prompt{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:13px;line-height:1.4}
+input:focus-visible,textarea:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.btn{font-family:var(--display);font-weight:700;font-size:16px;min-height:46px;padding:0 22px;border-radius:999px;border:0;background:var(--cta-bg);color:var(--cta-fg);cursor:pointer}
+.btn:hover{filter:brightness(1.08)}
+.btn.ghost{background:transparent;color:var(--brand);border:1.5px solid var(--muted)}
+.btn.ghost:hover{background:var(--tint);border-color:var(--brand);filter:none}
+.btn[disabled]{opacity:.45;cursor:not-allowed;filter:none}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin-top:12px}
+.small{font-size:14px;color:var(--muted)}
+details{border-top:1px solid var(--line);margin-top:18px;padding-top:12px}
+summary{cursor:pointer;font-weight:600;color:var(--brand)}
+pre.prompt{white-space:pre-wrap;background:var(--tint);border:1px solid var(--line);border-radius:14px;padding:12px;max-height:240px;overflow:auto;margin:12px 0 0}
+.msg{border-radius:14px;padding:10px 14px;margin-top:12px;font-size:15px;border:1.5px solid}
+.msg ul{margin:6px 0 0 18px;padding:0}
+.msg.err{background:var(--alert-bg);border-color:var(--alert);color:var(--alert)}
+.msg.warn{background:var(--warn-bg);border-color:var(--warn);color:var(--warn)}
+.msg.ok{background:var(--ok-bg);border-color:var(--ok);color:var(--ok)}
+table{width:100%;border-collapse:collapse;margin-top:12px;font-size:15px}
+th,td{text-align:left;padding:6px 8px;border-top:1px solid var(--line)}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);border-top:0}
+td.n{font-family:var(--display);font-weight:800;color:var(--brand);width:64px}
+.scroll{max-height:260px;overflow:auto;border-radius:12px}
+.item{display:flex;justify-content:space-between;gap:12px;padding:7px 0;border-top:1px solid var(--line)}
+.item .nm{font-weight:600}.ds,.meta{color:var(--muted);font-size:13px}
+.price{white-space:nowrap}
+.checks{list-style:none;margin:0 0 6px;padding:0}
+.checks li{display:flex;gap:10px;align-items:flex-start;padding:6px 0}
+.dot{width:22px;height:22px;border-radius:50%;border:2px solid var(--muted);flex:none;margin-top:2px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;color:var(--cta-fg)}
+.checks li.done .dot{background:var(--cta-bg);border-color:var(--cta-bg)}
+.checks li.done .dot::after{content:"\2713"}
+footer{padding-block:24px;color:var(--muted);font-size:14px}
+@media (max-width:620px){.grid2{grid-template-columns:1fr}.btn{width:100%}}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+<div class="logo">
+<svg viewBox="0 0 100 100" role="img" aria-label="Team Meal logo"><rect width="100" height="100" rx="22" style="fill:var(--tile)"/><path fill="#fff" fill-rule="evenodd" d="M17 57a33 9.2 0 1 0 66 0a33 9.2 0 1 0-66 0zM25.5 57.5a24.5 3.7 0 1 0 49 0a24.5 3.7 0 1 0-49 0z"/><path fill="#fff" stroke="#fff" stroke-width="1.2" stroke-linejoin="round" d="M28 68.5Q50 74 72 68.5Q70 73.5 50 73.8Q30 73.5 28 68.5Z"/><path d="M42.4 42.7L50.7 53.3L70 29.8" fill="none" style="stroke:var(--tile)" stroke-width="13.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M42.4 42.7L50.7 53.3L70 29.8" fill="none" stroke="#91D847" stroke-width="8.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+<span>Team Meal</span>
+</div>
+<span class="pill">Prototype</span>
+</header>
+
+<main>
+<h1>Set up your team order</h1>
+<p class="lede">Add your team, your roster, and the restaurant menu. Everything stays in your browser until you download it. No account needed.</p>
+
+<section class="card" aria-labelledby="h-team">
+<h2 id="h-team"><span class="num">1</span>Your team</h2>
+<p class="hint">This shows at the top of the order page.</p>
+<div class="grid2">
+<div><label for="team">Team or group name</label><input id="team" type="text" placeholder="Hawks 10U" autocomplete="off"></div>
+<div><label for="deadline">Order by (optional)</label><input id="deadline" type="datetime-local"></div>
+</div>
+</section>
+
+<section class="card" aria-labelledby="h-roster">
+<h2 id="h-roster"><span class="num">2</span>Your roster</h2>
+<p class="hint">One line per player: number, first name, last name. Paste straight from a spreadsheet if you have one. Parents and siblings are added by each family on the order page, so you only need the players here.</p>
+<label for="roster">Roster</label>
+<textarea id="roster" placeholder="17  Alex  Smith&#10;9, Eli, Jones&#10;12  Priya  Patel"></textarea>
+<div class="row"><button class="btn" id="checkRoster" type="button">Check roster</button><button class="btn ghost" id="sampleRoster" type="button">Try a sample roster</button></div>
+<div id="rosterMsgs" aria-live="polite"></div>
+<div id="rosterPreview"></div>
+
+<details>
+<summary>Roster is a photo, PDF, or a mess? Have an AI clean it up</summary>
+<p class="hint" style="margin-top:10px">Copy this into ChatGPT, Claude, or any AI chat. Add your roster below it: paste the text, or attach a screenshot, photo, or PDF. Then paste the AI's reply into the Roster box above.</p>
+<pre class="prompt" id="rosterPrompt"></pre>
+<div class="row"><button class="btn" id="copyRosterPrompt" type="button">Copy roster instructions</button><span class="small" id="copiedRoster" role="status"></span></div>
+</details>
+</section>
+
+<section class="card" aria-labelledby="h-menu">
+<h2 id="h-menu"><span class="num">3</span>Your menu</h2>
+<p class="hint">Add a link to the restaurant's menu, then use an AI to turn it into the format Team Meal needs.</p>
+<label for="menuLink">Link to the restaurant's menu (optional)</label>
+<input id="menuLink" type="url" placeholder="https://www.restaurant.com/menu" autocomplete="off">
+<p class="small" style="margin:6px 0 0">Some AIs can't open links. If yours can't, it will tell you. Then paste the menu text or attach a photo or PDF instead.</p>
+
+<h3 style="font-size:17px;margin:20px 0 6px">Copy these instructions</h3>
+<p class="hint">Paste them into your AI chat, then add the menu if you didn't use a link.</p>
+<pre class="prompt" id="menuPrompt"></pre>
+<div class="row"><button class="btn" id="copyMenuPrompt" type="button">Copy menu instructions</button><span class="small" id="copiedMenu" role="status"></span></div>
+
+<h3 style="font-size:17px;margin:24px 0 6px">Paste what the AI gives back</h3>
+<label for="menuPaste" class="small" style="font-weight:400">The whole reply, as is.</label>
+<textarea id="menuPaste" class="mono" placeholder="Paste the result here"></textarea>
+<div class="row"><button class="btn" id="checkMenu" type="button">Check menu</button><button class="btn ghost" id="sampleMenu" type="button">Try the Ford's Garage sample</button></div>
+<div id="menuMsgs" aria-live="polite"></div>
+<div id="menuPreview"></div>
+</section>
+
+<section class="card" aria-labelledby="h-review">
+<h2 id="h-review"><span class="num">4</span>Review and download</h2>
+<ul class="checks" id="checks"></ul>
+<div class="row"><button class="btn" id="download" type="button" disabled>Download team file</button></div>
+<p class="small" id="dlHint" style="margin-top:10px">Finish the steps above to download.</p>
+</section>
+</main>
+
+<footer>Team Meal · teammeal.app. Prototype: publishing a shareable order link is not built yet.</footer>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = t => String(t == null ? "" : t).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+
+/* ---------- LLM instructions ---------- */
+const ROSTER_PROMPT = `Turn the team roster I give you into JSON for a group meal-ordering page.
+
+Rules:
+- Reply with ONLY the JSON. No explanation, no markdown fences.
+- One entry per player. Skip coaches, managers, and parents unless they have a player number.
+- "number" is the player or jersey number exactly as written, as text. Keep leading zeros (for example "00" or "07"). If a player has no number, use "".
+- "first" is the first name only. "last" is the last name, or "" if none is shown.
+- Never guess. If you cannot read a name or number, leave that player out and do not invent one.
+- Do not include any other details (no phone numbers, emails, birthdays, or addresses).
+- Keep the roster's original order. Do not list the same player twice.
+
+Use exactly this shape:
+{
+  "players": [
+    { "number": "17", "first": "Alex", "last": "Smith" },
+    { "number": "9", "first": "Eli", "last": "Jones" }
+  ]
+}
+
+Here is the roster:
+`;
+const MENU_PROMPT = `Turn the restaurant menu I give you into JSON for a group meal-ordering page.
+
+Rules:
+- Reply with ONLY the JSON. No explanation, no markdown fences.
+- If you cannot open the link or read the menu, say so in one sentence and stop. Do not guess or make up a menu.
+- Never guess. If a price is not shown, use null. If you cannot read an item, leave it out.
+- Prices are plain numbers in dollars, for example 12.99.
+- "sideCount" is how many sides come with the item (0 if none). Put the restaurant's side choices in the top-level "sides" list.
+- Use "options" only when the guest must choose something (cook temperature, sauce, size, meat). Each option has a name and a list of choices.
+- Keep the restaurant's own section names and order.
+- Include every food and drink item.
+
+Use exactly this shape:
+{
+  "restaurant": "Restaurant name",
+  "sides": ["Fries", "Salad"],
+  "sections": [
+    {
+      "name": "Section name",
+      "note": "Short note shown under the section name, or empty",
+      "items": [
+        {
+          "name": "Item name",
+          "price": 12.99,
+          "description": "Short description, or empty",
+          "sideCount": 0,
+          "options": [ { "name": "Cook", "choices": ["Medium", "Well Done"] } ]
+        }
+      ]
+    }
+  ]
+}
+
+Here is the menu:
+`;
+
+function menuPromptText() {
+  const link = $("#menuLink").value.trim();
+  return MENU_PROMPT + (link ? link + "\n" : "");
+}
+function showPrompts() {
+  $("#rosterPrompt").textContent = ROSTER_PROMPT;
+  $("#menuPrompt").textContent = menuPromptText();
+}
+async function copyText(text, preEl, statusEl) {
+  try { await navigator.clipboard.writeText(text); statusEl.textContent = "Copied."; }
+  catch (e) {
+    const r = document.createRange(); r.selectNodeContents(preEl);
+    const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+    statusEl.textContent = "Selected. Use copy on your keyboard or phone.";
+  }
+}
+$("#copyRosterPrompt").onclick = () => copyText(ROSTER_PROMPT, $("#rosterPrompt"), $("#copiedRoster"));
+$("#copyMenuPrompt").onclick = () => copyText(menuPromptText(), $("#menuPrompt"), $("#copiedMenu"));
+$("#menuLink").addEventListener("input", () => { showPrompts(); $("#copiedMenu").textContent = ""; });
+showPrompts();
+
+/* ---------- shared helpers ---------- */
+function parseLoose(text, what) {
+  let t = text.trim().replace(/^```(?:json)?/i, "").replace(/```$/, "").trim();
+  const a = t.indexOf("{"), b = t.lastIndexOf("}");
+  if (a < 0 || b < a) throw new Error("I can't find a " + what + " in that. Make sure you pasted the whole reply from the AI.");
+  try { return JSON.parse(t.slice(a, b + 1)); }
+  catch (e) { throw new Error("The text looks cut off or has a typo. Ask the AI to \"send the complete JSON again\" and paste that."); }
+}
+function showMsgs(box, res, okText) {
+  box.innerHTML = "";
+  const add = (cls, head, list) => { const d = document.createElement("div"); d.className = "msg " + cls; d.innerHTML = "<b>" + esc(head) + "</b>" + (list && list.length ? "<ul>" + list.map(x => "<li>" + esc(x) + "</li>").join("") + "</ul>" : ""); box.appendChild(d); };
+  if (res.errors.length) { add("err", "Fix " + res.errors.length + " thing" + (res.errors.length > 1 ? "s" : "") + " before this can be used:", res.errors); return false; }
+  add("ok", okText);
+  if (res.warnings.length) add("warn", "Worth a second look:", res.warnings);
+  return true;
+}
+
+/* ---------- roster ---------- */
+let roster = null;
+const isNum = s => /^#?\d{1,3}$/.test(String(s).trim());
+
+function parseRosterText(text) {
+  const t = text.trim();
+  if (!t) throw new Error("Add your roster first. One player per line: number, first name, last name.");
+  if (t[0] === "{" || t[0] === "[" || /^```/.test(t)) {
+    const obj = t[0] === "[" ? { players: JSON.parse(t) } : parseLoose(t, "roster");
+    const list = Array.isArray(obj.players) ? obj.players : [];
+    return list.map((p, i) => ({ number: String(p && p.number != null ? p.number : "").replace(/^#/, "").trim(), first: String((p && p.first) || "").trim(), last: String((p && p.last) || "").trim(), line: i + 1 }));
+  }
+  const out = [];
+  t.split(/\r?\n/).forEach((raw, i) => {
+    let l = raw.replace(/^[\s*•\-]+/, "").trim();
+    if (!l) return;
+    if (i === 0 && /(number|^#|\bfirst\b|\bname\b)/i.test(l) && !/^\s*#?\d/.test(l)) return; /* header row */
+    l = l.replace(/^(#?\d{1,3})\s*[:.)\u2013\u2014-]+\s+/, "$1 ");
+    let parts;
+    if (l.includes("\t")) parts = l.split("\t");
+    else if (l.includes(",")) parts = l.split(",");
+    else parts = l.replace(/\s[-–—:|]\s/g, " ").split(/\s+/);
+    parts = parts.map(p => p.trim()).filter(Boolean);
+    let ni = isNum(parts[0]) ? 0 : (isNum(parts[parts.length - 1]) ? parts.length - 1 : parts.findIndex(isNum));
+    let number = "";
+    if (ni >= 0) { number = parts[ni].replace(/^#/, ""); parts.splice(ni, 1); }
+    out.push({ number, first: parts[0] || "", last: parts.slice(1).join(" "), line: i + 1 });
+  });
+  return out;
+}
+function validateRoster(list) {
+  const errors = [], warnings = [];
+  if (!list.length) { errors.push("No players found. Use one line per player, like: 17 Alex Smith"); return { errors, warnings }; }
+  const seen = {};
+  list.forEach((p, i) => {
+    const who = p.first ? p.first + (p.last ? " " + p.last : "") : "line " + (i + 1);
+    if (!p.first) errors.push("Line " + (i + 1) + " has no first name.");
+    if (!p.number) errors.push(who + " has no player number.");
+    else if (!/^\d{1,3}$/.test(p.number)) warnings.push(who + " has an odd number (" + p.number + "). Numbers are usually 1 to 3 digits.");
+    if (p.number) (seen[p.number] = seen[p.number] || []).push(who);
+  });
+  Object.keys(seen).forEach(n => { if (seen[n].length > 1) warnings.push("Number " + n + " is used " + seen[n].length + " times (" + seen[n].join(", ") + "). Is that right?"); });
+  if (list.length > 40) warnings.push(list.length + " players is a big roster. Did the list include coaches or parents?");
+  return { errors, warnings };
+}
+function renderRoster(list) {
+  const rows = list.map(p => "<tr><td class=\"n\">" + esc(p.number) + "</td><td>" + esc(p.first) + "</td><td>" + esc(p.last) + "</td></tr>").join("");
+  $("#rosterPreview").innerHTML = "<div class=\"scroll\"><table><thead><tr><th>#</th><th>First</th><th>Last</th></tr></thead><tbody>" + rows + "</tbody></table></div>";
+}
+function checkRoster() {
+  roster = null; $("#rosterPreview").innerHTML = "";
+  try {
+    const list = parseRosterText($("#roster").value);
+    const res = validateRoster(list);
+    if (showMsgs($("#rosterMsgs"), res, "Looks good: " + list.length + " player" + (list.length > 1 ? "s" : "") + ".")) {
+      roster = list.map(p => ({ number: p.number, first: p.first, last: p.last }));
+      renderRoster(roster);
+    }
+  } catch (e) {
+    $("#rosterMsgs").innerHTML = "<div class=\"msg err\"><b>" + esc(e.message) + "</b></div>";
+  }
+  updateReview();
+}
+$("#checkRoster").onclick = checkRoster;
+$("#sampleRoster").onclick = () => {
+  $("#roster").value = "17\tAlex\tSmith\n9\tEli\tJones\n12\tPriya\tPatel\n4\tJordan\tLee\n21\tSam\tReyes\n8\tNoor\tHaddad\n15\tTaylor\tBrooks\n3\tCasey\tNguyen";
+  checkRoster();
+};
+$("#roster").addEventListener("input", () => { roster = null; $("#rosterPreview").innerHTML = ""; $("#rosterMsgs").innerHTML = ""; updateReview(); });
+
+/* ---------- menu ---------- */
+let menu = null;
+function validateMenu(m) {
+  const errors = [], warnings = [];
+  if (!m || typeof m !== "object") return { errors: ["That isn't a menu."], warnings };
+  if (!m.restaurant || !String(m.restaurant).trim()) errors.push("The restaurant name is missing.");
+  if (!Array.isArray(m.sections) || !m.sections.length) { errors.push("No menu sections found."); return { errors, warnings }; }
+  const sides = Array.isArray(m.sides) ? m.sides.filter(Boolean) : [];
+  let items = 0, needSides = false;
+  m.sections.forEach((s, si) => {
+    const sn = (s && s.name) || "Section " + (si + 1);
+    if (!s || !s.name) errors.push("Section " + (si + 1) + " has no name.");
+    if (!s || !Array.isArray(s.items) || !s.items.length) { errors.push("\"" + sn + "\" has no items."); return; }
+    s.items.forEach((it, ii) => {
+      items++;
+      const nm = (it && it.name) ? it.name : "item " + (ii + 1) + " in \"" + sn + "\"";
+      if (it && typeof it.price === "string" && /^\s*\$?\d+(\.\d{1,2})?\s*$/.test(it.price)) it.price = parseFloat(it.price.replace("$", ""));
+      if (!it || !it.name) errors.push("Item " + (ii + 1) + " in \"" + sn + "\" has no name.");
+      if (it && (it.price === null || it.price === undefined || it.price === "")) errors.push("\"" + nm + "\" has no price. Add it or remove the item.");
+      else if (it && (typeof it.price !== "number" || !isFinite(it.price) || it.price < 0)) errors.push("\"" + nm + "\" has a price that isn't a number (" + JSON.stringify(it.price) + ").");
+      else if (it && it.price === 0) warnings.push("\"" + nm + "\" is $0.00. Is that right?");
+      else if (it && it.price > 100) warnings.push("\"" + nm + "\" is $" + it.price + ". Double-check that price.");
+      if (it && it.sideCount) { if (!Number.isInteger(it.sideCount) || it.sideCount < 0 || it.sideCount > 4) errors.push("\"" + nm + "\" has an odd number of sides (" + it.sideCount + ")."); else needSides = true; }
+      if (it && it.options !== undefined && !Array.isArray(it.options)) errors.push("\"" + nm + "\" has options in the wrong format.");
+      (it && Array.isArray(it.options) ? it.options : []).forEach(o => {
+        if (!o || !o.name || !Array.isArray(o.choices) || o.choices.length < 2) errors.push("An option on \"" + nm + "\" needs a name and at least two choices.");
+      });
+    });
+  });
+  if (needSides && !sides.length) errors.push("Some items come with sides, but the list of side choices is empty.");
+  if (!errors.length && items < 3) warnings.push("That's very few items. Did the AI skip part of the menu?");
+  return { errors, warnings, items };
+}
+function renderMenu(m) {
+  const sides = (m.sides || []).filter(Boolean);
+  let h = "<p style=\"margin:14px 0 4px\"><b>" + esc(m.restaurant) + "</b>" + (sides.length ? "<span class=\"meta\"><br>Side choices: " + esc(sides.join(", ")) + "</span>" : "") + "</p>";
+  m.sections.forEach(s => {
+    h += "<details><summary>" + esc(s.name) + " <span class=\"meta\">(" + s.items.length + ")</span></summary>" + (s.note ? "<p class=\"hint\">" + esc(s.note) + "</p>" : "");
+    s.items.forEach(it => {
+      const meta = [];
+      if (it.sideCount) meta.push(it.sideCount + " side" + (it.sideCount > 1 ? "s" : ""));
+      (it.options || []).forEach(o => meta.push(o.name + ": " + o.choices.join(" / ")));
+      h += "<div class=\"item\"><div><div class=\"nm\">" + esc(it.name) + "</div>" + (it.description ? "<div class=\"ds\">" + esc(it.description) + "</div>" : "") + (meta.length ? "<div class=\"meta\">" + esc(meta.join(" · ")) + "</div>" : "") + "</div><div class=\"price\">$" + Number(it.price).toFixed(2) + "</div></div>";
+    });
+    h += "</details>";
+  });
+  $("#menuPreview").innerHTML = h;
+}
+function checkMenu() {
+  menu = null; $("#menuPreview").innerHTML = "";
+  try {
+    const m = parseLoose($("#menuPaste").value, "menu");
+    const res = validateMenu(m);
+    if (showMsgs($("#menuMsgs"), res, "Looks good: " + m.sections.length + " sections, " + res.items + " items. Look over every price below.")) { menu = m; renderMenu(m); }
+  } catch (e) {
+    $("#menuMsgs").innerHTML = "<div class=\"msg err\"><b>" + esc(e.message) + "</b></div>";
+  }
+  updateReview();
+}
+$("#checkMenu").onclick = checkMenu;
+$("#sampleMenu").onclick = async () => {
+  try { const r = await fetch("fordsgarage-menu.json"); $("#menuPaste").value = JSON.stringify(await r.json(), null, 1); checkMenu(); }
+  catch (e) { $("#menuMsgs").innerHTML = "<div class=\"msg err\"><b>Couldn't load the sample.</b></div>"; }
+};
+$("#menuPaste").addEventListener("input", () => { menu = null; $("#menuPreview").innerHTML = ""; $("#menuMsgs").innerHTML = ""; updateReview(); });
+
+/* ---------- review + download ---------- */
+function linkValue() {
+  const v = $("#menuLink").value.trim();
+  if (!v) return "";
+  return /^https?:\/\/\S+$/i.test(v) ? v : null;
+}
+function updateReview() {
+  const team = $("#team").value.trim();
+  const link = linkValue();
+  const items = [
+    [!!team, team ? "Team: " + team : "Add your team name"],
+    [!!roster, roster ? "Roster: " + roster.length + " players" : "Add and check your roster"],
+    [!!menu, menu ? "Menu: " + menu.restaurant + " (" + menu.sections.reduce((n, s) => n + s.items.length, 0) + " items)" : "Add and check your menu"]
+  ];
+  if (link === null) items.push([false, "The menu link needs to start with http:// or https://"]);
+  $("#checks").innerHTML = items.map(i => "<li class=\"" + (i[0] ? "done" : "") + "\"><span class=\"dot\"></span><span>" + esc(i[1]) + "</span></li>").join("");
+  const ready = !!team && !!roster && !!menu && link !== null;
+  $("#download").disabled = !ready;
+  $("#dlHint").textContent = ready ? "This file has your team, roster, and menu in one place." : "Finish the steps above to download.";
+}
+$("#team").addEventListener("input", updateReview);
+$("#deadline").addEventListener("input", updateReview);
+$("#menuLink").addEventListener("input", updateReview);
+$("#download").onclick = () => {
+  const team = $("#team").value.trim();
+  const file = {
+    version: 1,
+    team,
+    orderBy: $("#deadline").value || "",
+    menuLink: linkValue() || "",
+    roster,
+    menu
+  };
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([JSON.stringify(file, null, 1)], { type: "application/json" }));
+  a.download = team.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") + "-team.json";
+  a.click();
+};
+updateReview();
+</script>
+</body>
+</html>
