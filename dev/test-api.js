@@ -116,5 +116,31 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   await ok('organizer can edit after deadline', async () => assert((await gas.post({ action: 'updateOrder', orderId: early.orderId, key: soon.adminKey, order: mk('17', ['Alex', 'Zed']) })).ok));
   await ok('organizer can delete after deadline', async () => assert((await gas.post({ action: 'deleteOrder', orderId: early.orderId, key: soon.adminKey })).ok));
 
+  /* limits: same connection */
+  const same = 'one-noisy-connection';
+  await ok('one connection can make 5 teams a day, not 6', async () => {
+    for (let i = 0; i < 5; i++) assert((await gas.post({ action: 'createTeam', team: 'Spam ' + i, roster, menu }, same)).ok);
+    const r = await gas.post({ action: 'createTeam', team: 'Spam 6', roster, menu }, same);
+    assert.strictEqual(r.error, 'limit'); assert(/tomorrow/.test(r.message));
+  });
+  await ok('a different connection is not affected', async () => assert((await gas.post({ action: 'createTeam', team: 'Fine', roster, menu }, 'someone-else')).ok));
+  await ok('one connection can place 60 orders an hour, not 61', async () => {
+    const team = await gas.post({ action: 'createTeam', team: 'Busy', roster, menu });
+    for (let i = 0; i < 60; i++) assert((await gas.post({ action: 'submitOrder', teamId: team.id, order: mk('17', ['A']) }, 'rink-wifi')).ok, 'order ' + i);
+    assert.strictEqual((await gas.post({ action: 'submitOrder', teamId: team.id, order: mk('17', ['A']) }, 'rink-wifi')).error, 'limit');
+    assert((await gas.post({ action: 'submitOrder', teamId: team.id, order: mk('17', ['A']) }, 'other-phone')).ok);
+  });
+  await ok('the stored fingerprint is not the IP address', async () => {
+    const rows = gas.env.DB.raw.prepare('SELECT k FROM hits').all().map(r => r.k).join(' ');
+    assert(!rows.includes('rink-wifi') && !rows.includes('one-noisy'));
+  });
+  await ok('old counters are removable', async () => {
+    gas.env.DB.raw.prepare('UPDATE hits SET until = 1').run();
+    for (let i = 0; i < 400 && gas.env.DB.raw.prepare('SELECT COUNT(*) c FROM hits WHERE until = 1').get().c; i++) await gas.post({ action: 'ping' });
+    /* ping is a GET, so cleanup runs on writes; trigger some */
+    for (let i = 0; i < 300 && gas.env.DB.raw.prepare('SELECT COUNT(*) c FROM hits WHERE until = 1').get().c; i++) await gas.post({ action: 'deleteOrder', orderId: 'x', key: 'y' });
+    assert.strictEqual(gas.env.DB.raw.prepare('SELECT COUNT(*) c FROM hits WHERE until = 1').get().c, 0);
+  });
+
   console.log('\n' + passed + ' checks passed');
 })().catch(e => { console.error('FAILED:', e.stack || e.message); process.exit(1); });

@@ -20,15 +20,16 @@ function makeD1() {
 async function load() {
   const { onRequest } = await import('../functions/api.js');
   const env = { DB: makeD1() };
-  const call = async (method, path, body) => {
-    const req = new Request('http://localhost' + path, { method, body });
+  let n = 0;
+  const call = async (method, path, body, ip) => {
+    const req = new Request('http://localhost' + path, { method, body, headers: { 'CF-Connecting-IP': ip || 'test-ip-' + (n++) } });
     return onRequest({ request: req, env });
   };
   return {
     env,
     get: async params => (await call('GET', '/api?' + new URLSearchParams(params))).json(),
     getRaw: params => call('GET', '/api?' + new URLSearchParams(params)),
-    post: async body => (await call('POST', '/api', JSON.stringify(body))).json(),
+    post: async (body, ip) => (await call('POST', '/api', JSON.stringify(body), ip)).json(),
     postRaw: async text => (await call('POST', '/api', text)).json(),
     postRawResponse: text => call('POST', '/api', text),
     getRawResponse: params => call('GET', '/api?' + new URLSearchParams(params))

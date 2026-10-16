@@ -18,8 +18,19 @@ const SCHEMA = [
   `CREATE TABLE IF NOT EXISTS orders (
     order_id TEXT PRIMARY KEY, team_id TEXT NOT NULL, edit_key TEXT NOT NULL, created INTEGER NOT NULL, updated INTEGER NOT NULL,
     player_number TEXT NOT NULL, people INTEGER NOT NULL, status TEXT NOT NULL DEFAULT 'active', payload TEXT NOT NULL)`,
-  `CREATE INDEX IF NOT EXISTS orders_team ON orders (team_id, status)`
+  `CREATE INDEX IF NOT EXISTS orders_team ON orders (team_id, status)`,
+  `CREATE TABLE IF NOT EXISTS hits (k TEXT NOT NULL, bucket INTEGER NOT NULL, n INTEGER NOT NULL, until INTEGER NOT NULL, PRIMARY KEY (k, bucket))`
 ];
+
+/* Limits. Normal use never gets near these; they stop one connection from flooding the site.
+   Each is [max, window in ms]. Counted per connection (a scrambled fingerprint of the IP address, never the address itself). */
+const LIMITS = {
+  createTeam: [5, 24 * 3600e3],     /* 5 new teams per connection per day */
+  submitOrder: [60, 3600e3],        /* 60 new orders per connection per hour (a whole rink on one wifi is fine) */
+  change: [120, 3600e3]             /* 120 edits or removals per connection per hour */
+};
+const SITE_TEAMS_PER_DAY = 200;     /* all connections together */
+const ORDERS_PER_TEAM = 300;        /* one team link can hold at most this many orders */
 let ready = false;
 
 const fail = (code, message) => Object.assign(new Error(message), { code });
@@ -47,6 +58,7 @@ export async function onRequest({ request, env }) {
       throw fail('invalid', 'Unsupported request.');
     }
     const db = env.DB;
+    if (WRITES[action]) await enforceLimits(db, request, action);
     switch (action) {
       case 'ping': return json({ ok: true, service: 'teammeal' });
       case 'team': return json({ ok: true, ...(await getTeam(db, p)) });
@@ -63,6 +75,31 @@ export async function onRequest({ request, env }) {
     if (err && err.code) return json({ ok: false, error: err.code, message: err.message });
     return json({ ok: false, error: 'server', message: 'Something went wrong on our side. Please try again.' });
   }
+}
+
+/* ---------- limits ---------- */
+
+async function who(request) {
+  const ip = request.headers.get('CF-Connecting-IP') || 'unknown';
+  const bytes = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('teammeal|' + ip));
+  return Array.from(new Uint8Array(bytes).slice(0, 8)).map(b => b.toString(16).padStart(2, '0')).join('');
+}
+async function bump(db, key, windowMs) {
+  const bucket = Math.floor(Date.now() / windowMs);
+  const r = await db.prepare('INSERT INTO hits (k, bucket, n, until) VALUES (?, ?, 1, ?) ON CONFLICT (k, bucket) DO UPDATE SET n = n + 1 RETURNING n').bind(key, bucket, (bucket + 1) * windowMs).first();
+  return r ? Number(r.n) : 1;
+}
+async function enforceLimits(db, request, action) {
+  const kind = (action === 'updateOrder' || action === 'deleteOrder') ? 'change' : action;
+  const [max, windowMs] = LIMITS[kind];
+  const me = await who(request);
+  if (await bump(db, kind + ':' + me, windowMs) > max) {
+    throw fail('limit', kind === 'createTeam' ? 'You have made a lot of teams today. Please try again tomorrow.' : 'Too many requests from this connection. Please wait a little while and try again.');
+  }
+  if (action === 'createTeam' && await bump(db, 'site:createTeam', 24 * 3600e3) > SITE_TEAMS_PER_DAY) {
+    throw fail('limit', 'Team Meal is very busy right now. Please try again later.');
+  }
+  if (Math.random() < 0.02) await db.prepare('DELETE FROM hits WHERE until < ?').bind(Date.now()).run().catch(() => {});
 }
 
 /* ---------- storage ---------- */
@@ -271,6 +308,8 @@ async function createTeam(db, b) {
 async function submitOrder(db, b) {
   const team = await findTeam(db, b.teamId);
   if (isClosed(team)) throw fail('closed', 'Ordering for this team has closed.');
+  const cnt = await db.prepare("SELECT COUNT(*) AS c FROM orders WHERE team_id = ? AND status = 'active'").bind(team.id).first();
+  if (cnt && Number(cnt.c) >= ORDERS_PER_TEAM) throw fail('limit', 'This team has reached its limit of ' + ORDERS_PER_TEAM + ' orders. Ask your organizer.');
   const payload = cleanOrder(b.order, team.menu);
   const now = Date.now();
   const orderId = 'o' + newKey().slice(0, 12), editKey = newKey();

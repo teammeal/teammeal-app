@@ -107,27 +107,12 @@ pre{white-space:pre-wrap;background:var(--input);border:1px solid var(--line);bo
 <script src="teammeal-config.js"></script>
 <script src="teammeal.js"></script>
 <script>
-/* ---------- SETTINGS: change these ---------- */
 const Q = new URLSearchParams(location.search);
-const SETTINGS = {
-  teamName: Q.get("team") || "",
-  eventName: "",
-  orderDate: "",
-  emailTo: "",
-  // Prototype: orders go to the same Google Sheet as the Rebe11ion page.
-  postUrl: "https://script.google.com/macros/s/AKfycbzjJ-qIwNBOZiRtbpZq4Hs9i3D3df-V9pkEWdlORB82wWXh8wlC6-ViHQa_Dsh-pG8r/exec"
-};
-const MENU_FILE = (Q.get("menu") || "fordsgarage-menu.json").replace(/[^a-zA-Z0-9._-]/g, "");
-/* -------------------------------------------- */
-
-/* Team mode: a real team link (?team=ID) served by the Team Meal backend.
-   Old pilot mode (?menu=file.json&team=Name) keeps working exactly as before. */
-const TEAM_ID = (!Q.get("menu") && Q.get("team") && TM.enabled()) ? Q.get("team") : "";
-const TEAM_MODE = !!TEAM_ID;
-const EDIT_ID = TEAM_MODE ? (Q.get("order") || "") : "";
-const EDIT_KEY = TEAM_MODE ? (Q.get("key") || "") : "";
+const TEAM_ID = Q.get("team") || "";
+const EDIT_ID = Q.get("order") || "";
+const EDIT_KEY = Q.get("key") || "";
 const EDITING = !!(EDIT_ID && EDIT_KEY);
-let TEAMDATA = null, IS_ADMIN = false, LOCKED = false;
+let TEAMNAME = "", TEAMDATA = null, IS_ADMIN = false, LOCKED = false;
 
 let SIDES = [], MENU = [], RESTAURANT = "";
 const ALLERGENS = ["Gluten / Celiac","Dairy","Eggs","Peanuts","Tree Nuts","Shellfish","Fish","Soy","Sesame","Vegetarian","Other (explain below)"];
@@ -162,18 +147,16 @@ function applyMenu(m) {
   RESTAURANT = m.restaurant || ""; SIDES = m.sides || [];
   MENU = m.sections.map(sec => ({s: sec.name, note: sec.note || "", items: sec.items.map(i => ({n: i.name, p: i.price, d: i.description || "", sides: i.sideCount || 0, opts: (i.options || []).map(o => ({k: o.name, v: o.choices}))}))}));
   document.title = (RESTAURANT || "Team") + " Order";
-  $("#title").textContent = (SETTINGS.teamName ? SETTINGS.teamName + " - " : "") + (RESTAURANT ? RESTAURANT + " Order" : "Meal Order");
+  $("#title").textContent = (TEAMNAME ? TEAMNAME + " - " : "") + (RESTAURANT ? RESTAURANT + " Order" : "Meal Order");
   buildMenu();
 }
 async function loadMenu() {
-  try {
-    if (TEAM_MODE) return await loadTeam();
-    const r = await fetch(MENU_FILE, {cache: "no-store"}); if (!r.ok) throw 0;
-    applyMenu(await r.json());
-  } catch (e) { $("#menu").innerHTML = '<p class="note">This menu could not be loaded. Check the link and try again.</p>'; }
+  if (!TEAM_ID || !TM.enabled()) return blockPage("This link is missing its team. Ask your organizer to send it again.");
+  try { await loadTeam(); }
+  catch (e) { blockPage("This page could not load. Check your connection and try again."); }
 }
 
-/* ---------- team mode ---------- */
+/* ---------- team ---------- */
 function blockPage(msg) {
   $("#formView").style.display = "none"; $("#bar").style.display = "none"; $("#history").style.display = "none";
   const d = $("#doneView"); d.style.display = "block"; d.className = "card"; d.innerHTML = `<h2>${esc(msg)}</h2>`;
@@ -186,7 +169,7 @@ async function loadTeam() {
     return blockPage(e.code === "not_found" ? "We could not find this team or order. Check the link you were sent." :
       e.code === "bad_key" ? "This change link is not valid. Use the link from your confirmation, or ask your organizer." : e.message);
   }
-  TEAMDATA = res.team; SETTINGS.teamName = TEAMDATA.name; IS_ADMIN = !!res.isAdmin; LOCKED = !!res.locked;
+  TEAMDATA = res.team; TEAMNAME = TEAMDATA.name; IS_ADMIN = !!res.isAdmin; LOCKED = !!res.locked;
   applyMenu(TEAMDATA.menu);
   const sub = $("#subtitle"); sub.style.display = "block";
   sub.textContent = TEAMDATA.orderBy ? (TEAMDATA.closed ? "Ordering closed " : "Order by ") + TM.fmtTime(TEAMDATA.orderBy) : "";
@@ -333,21 +316,6 @@ function lineText(l) {
   if (l.note.trim()) bits.push("Changes: " + l.note.trim());
   return `- ${l.it.n}${bits.length ? " (" + bits.join("; ") + ")" : ""}`;
 }
-const HKEY = "teammeal_orders";
-function loadHistory() { try { return JSON.parse(localStorage.getItem(HKEY) || "[]"); } catch (e) { return []; } }
-function saveHistory(o) {
-  try { const h = loadHistory(); h.unshift({t: Date.now(), name: o.first, num: o.num, total: o.total, text: o.text}); localStorage.setItem(HKEY, JSON.stringify(h.slice(0, 20))); } catch (e) {}
-}
-function renderHistory() {
-  if (TEAM_MODE) return;
-  const h = loadHistory(), el = $("#history");
-  if (!h.length) { el.style.display = "none"; return; }
-  el.style.display = "block";
-  el.innerHTML = `<h2>Orders You Already Sent</h2><p class="note">Saved on this phone so you can check what you ordered.</p>` +
-    h.map(x => `<details class="sec"><summary>${esc(x.name)} #${esc(x.num)} · ${new Date(x.t).toLocaleString([], {month: "short", day: "numeric", hour: "numeric", minute: "2-digit"})} · ${money(x.total)}</summary><pre>${esc(x.text)}</pre></details>`).join("");
-}
-renderHistory();
-
 function showErr(m) { const e = $("#err"); e.textContent = m; e.style.display = m ? "block" : "none"; if (m) window.scrollTo({top: 0, behavior: "smooth"}); }
 
 function buildOrder() {
@@ -359,7 +327,7 @@ function buildOrder() {
   const groups = people.map(p => ({p, lines: cart.filter(l => l.pid === p.id)})).filter(g => g.lines.length);
   const total = cart.reduce((n, l) => n + l.it.p, 0);
   const parts = [`ORDER: ${first}, Player #${num}`];
-  if (SETTINGS.teamName) parts.push(`Team: ${SETTINGS.teamName}`);
+  if (TEAMNAME) parts.push(`Team: ${TEAMNAME}`);
   if (groups.length > 1) parts.push(`${groups.length} people on this order`);
   groups.forEach(g => {
     parts.push("", `== ${pLabel(g.p)} ==`, ...g.lines.map(lineText),
@@ -405,40 +373,7 @@ async function sendTeamOrder(o) {
   }
 }
 
-$("#sendBtn").onclick = async () => {
-  const o = buildOrder(); if (!o) return;
-  if (TEAM_MODE) return sendTeamOrder(o);
-  const done = $("#doneView");
-  const subject = `Meal order: ${o.first} #${o.num}`;
-  const show = (msg, extra = "") => {
-    saveHistory(o); $("#history").style.display = "none";
-    $("#formView").style.display = "none"; $("#bar").style.display = "none"; done.style.display = "block";
-    done.innerHTML = `<h2>${msg}</h2>${extra}<pre>${o.text.replace(/</g, "&lt;")}</pre>
-      <button class="ghost" id="copyBtn">Copy Order</button> <button class="ghost" id="againBtn">Start Another Order</button>`;
-    $("#copyBtn").onclick = () => navigator.clipboard && navigator.clipboard.writeText(o.text).then(() => $("#copyBtn").textContent = "Copied");
-    $("#againBtn").onclick = () => location.reload();
-    window.scrollTo({top: 0});
-  };
-  if (SETTINGS.postUrl) {
-    $("#sendBtn").disabled = true; $("#sendBtn").textContent = "Sending...";
-    try {
-      // Plain-text body keeps this a "simple" request so the Google Sheet link accepts it from any website.
-      await fetch(SETTINGS.postUrl, {method: "POST", mode: "no-cors", headers: {"Content-Type": "text/plain;charset=utf-8"},
-        body: JSON.stringify({first: o.first, last: o.last, num: o.num, allergies: o.allergies, notes: o.notes,
-          total: o.total.toFixed(2), order: o.text, items: o.items})});
-      show("Order Sent. Thank You!");
-    } catch (e) {
-      $("#sendBtn").disabled = false; $("#sendBtn").textContent = "Send My Order";
-      showErr("That didn't send. Please try again, or text your order to the coach.");
-    }
-  } else if (SETTINGS.emailTo) {
-    show("Almost Done: Send the Email",
-      `<p>Your email app should open with your order filled in. Tap Send there to finish. If it didn't open, copy your order below and email it to ${SETTINGS.emailTo}.</p>`);
-    location.href = `mailto:${SETTINGS.emailTo}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(o.text)}`;
-  } else {
-    show("Order Ready", `<p>Copy this order and send it to the coach.</p>`);
-  }
-};
+$("#sendBtn").onclick = () => { const o = buildOrder(); if (o) sendTeamOrder(o); };
 </script>
 </body>
 </html>
