@@ -1,4 +1,0 @@
-# Keep the test and server files private. Everything else in the repo root is the public site.
-/dev/*  /404.html  404
-/functions/*  /404.html  404
-/README.md  /404.html  404
