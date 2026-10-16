@@ -65,10 +65,13 @@ section h2{font-size:clamp(30px,4.2vw,44px);line-height:1.08;letter-spacing:-0.0
 footer{padding-block:40px;border-top:1px solid var(--line);display:flex;flex-wrap:wrap;gap:12px;justify-content:space-between;color:var(--muted);font-size:15px}
 
 .demo .eyebrow{margin-bottom:12px}
-.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--tint);border-radius:999px;padding:4px;margin-bottom:18px}
-.tab{font-family:var(--display);font-weight:700;font-size:15px;min-height:44px;border:0;border-radius:999px;background:transparent;color:var(--muted);cursor:pointer}
-.tab[aria-selected="true"]{background:var(--cta-bg);color:var(--cta-fg)}
+.tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:8px}
+.tab{font-family:var(--display);font-weight:700;font-size:15px;min-height:46px;border:1.5px solid var(--muted);border-radius:999px;background:var(--surface);color:var(--brand);cursor:pointer;box-shadow:0 2px 0 rgba(14,39,66,.18);transition:background .15s,border-color .15s}
+.tab:hover{background:var(--tint);border-color:var(--brand)}
+.tab:active{transform:translateY(1px);box-shadow:none}
+.tab[aria-selected="true"]{background:var(--cta-bg);color:var(--cta-fg);border-color:var(--cta-bg);box-shadow:none;cursor:default}
 .tab:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
+.tabhint{margin:0 0 10px;text-align:center}
 .panels{display:grid}.panel{grid-area:1/1}.panel[hidden]{display:block;visibility:hidden}
 .panel h3{margin:0 0 4px}
 .hint{font-size:14px;color:var(--muted);margin:0 0 12px}
@@ -166,6 +169,7 @@ footer{padding-block:40px;border-top:1px solid var(--line);display:flex;flex-wra
 <button class="tab" role="tab" id="tab-o" aria-selected="false" aria-controls="panel-o" tabindex="-1" type="button">Organizer</button>
 <button class="tab" role="tab" id="tab-k" aria-selected="false" aria-controls="panel-k" tabindex="-1" type="button">Kitchen</button>
 </div>
+<p class="hint tabhint">Tap a tab to see the same order from each side.</p>
 
 <div class="panels">
 <div class="panel" role="tabpanel" id="panel-p" aria-labelledby="tab-p">
