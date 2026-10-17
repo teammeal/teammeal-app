@@ -4,7 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const { load } = require('./d1-mock');
 
-const menu = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'fordsgarage-menu.json'), 'utf8'));
+const menu = JSON.parse(fs.readFileSync(path.join(__dirname, '..', 'public', 'fordsgarage-menu.json'), 'utf8'));
 const roster = [{ number: '17', first: 'Alex', last: 'Smith' }, { number: '9', first: 'Eli', last: 'Jones' }, { number: '07', first: 'Casey', last: 'Lee' }];
 const burger = menu.sections.find(s => s.name === 'Burgers of Fame').items.find(i => i.name === 'American Standard');
 const opt = burger.options[0];
@@ -154,6 +154,23 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
   await ok('wait list: 10 sign-ups an hour per connection', async () => {
     for (let i = 0; i < 10; i++) assert((await gas.post({ action: 'joinWaitlist', email: `p${i}@example.com` }, 'spammer')).ok);
     assert.strictEqual((await gas.post({ action: 'joinWaitlist', email: 'p11@example.com' }, 'spammer')).error, 'limit');
+  });
+
+  await ok('owner page: key is made once, only the right key reads, nothing else leaks', async () => {
+    const a = await gas.post({ action: 'adminSetup' });
+    assert(a.ok && a.key.length === 32);
+    assert.strictEqual((await gas.post({ action: 'adminSetup' })).error, 'invalid');
+    assert.strictEqual((await gas.get({ action: 'admin', key: 'nope' })).error, 'bad_key');
+    assert.strictEqual((await gas.get({ action: 'admin' })).error, 'bad_key');
+    const r = await gas.get({ action: 'admin', key: a.key });
+    assert(r.ok); assert(r.waitlist.some(w => w.email === 'mom@example.com'));
+    assert(r.teams.length > 3 && typeof r.totalOrders === 'number');
+    const s = JSON.stringify(r);
+    assert(!s.includes(t.adminKey) && !s.includes(o1.editKey), 'no private team or order keys');
+  });
+  await ok('owner page: guessing the key is limited', async () => {
+    for (let i = 0; i < 30; i++) assert.strictEqual((await gas.get({ action: 'admin', key: 'guess' + i }, 'guesser')).error, 'bad_key');
+    assert.strictEqual((await gas.get({ action: 'admin', key: 'guess31' }, 'guesser')).error, 'limit');
   });
 
   console.log('\n' + passed + ' checks passed');

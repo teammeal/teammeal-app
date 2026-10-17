@@ -27,7 +27,7 @@ async function load() {
   };
   return {
     env,
-    get: async params => (await call('GET', '/api?' + new URLSearchParams(params))).json(),
+    get: async (params, ip) => (await call('GET', '/api?' + new URLSearchParams(params), undefined, ip)).json(),
     getRaw: params => call('GET', '/api?' + new URLSearchParams(params)),
     post: async (body, ip) => (await call('POST', '/api', JSON.stringify(body), ip)).json(),
     postRaw: async text => (await call('POST', '/api', text)).json(),

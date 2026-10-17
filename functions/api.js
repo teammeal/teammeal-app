@@ -20,6 +20,7 @@ const SCHEMA = [
     player_number TEXT NOT NULL, people INTEGER NOT NULL, status TEXT NOT NULL DEFAULT 'active', payload TEXT NOT NULL)`,
   `CREATE INDEX IF NOT EXISTS orders_team ON orders (team_id, status)`,
   `CREATE TABLE IF NOT EXISTS waitlist (email TEXT PRIMARY KEY, created INTEGER NOT NULL)`,
+  `CREATE TABLE IF NOT EXISTS settings (k TEXT PRIMARY KEY, v TEXT NOT NULL)`,
   `CREATE TABLE IF NOT EXISTS hits (k TEXT NOT NULL, bucket INTEGER NOT NULL, n INTEGER NOT NULL, until INTEGER NOT NULL, PRIMARY KEY (k, bucket))`
 ];
 
@@ -29,7 +30,8 @@ const LIMITS = {
   createTeam: [5, 24 * 3600e3],     /* 5 new teams per connection per day */
   submitOrder: [60, 3600e3],        /* 60 new orders per connection per hour (a whole rink on one wifi is fine) */
   change: [120, 3600e3],            /* 120 edits or removals per connection per hour */
-  joinWaitlist: [10, 3600e3]        /* 10 wait list sign-ups per connection per hour */
+  joinWaitlist: [10, 3600e3],       /* 10 wait list sign-ups per connection per hour */
+  admin: [30, 3600e3]               /* 30 owner-page key attempts per connection per hour */
 };
 const SITE_TEAMS_PER_DAY = 200;     /* all connections together */
 const ORDERS_PER_TEAM = 300;        /* one team link can hold at most this many orders */
@@ -45,7 +47,7 @@ export async function onRequest({ request, env }) {
   try {
     if (!env.DB) throw fail('server', 'The database is not connected yet.');
     if (!ready) { await env.DB.batch(SCHEMA.map(s => env.DB.prepare(s))); ready = true; }
-    const WRITES = { joinWaitlist: 1, createTeam: 1, submitOrder: 1, updateOrder: 1, deleteOrder: 1 };
+    const WRITES = { adminSetup: 1, joinWaitlist: 1, createTeam: 1, submitOrder: 1, updateOrder: 1, deleteOrder: 1 };
     let action, p;
     if (request.method === 'POST') {
       const text = await request.text();
@@ -60,13 +62,15 @@ export async function onRequest({ request, env }) {
       throw fail('invalid', 'Unsupported request.');
     }
     const db = env.DB;
-    if (WRITES[action]) await enforceLimits(db, request, action);
+    if (WRITES[action] || action === 'admin') await enforceLimits(db, request, action);
     switch (action) {
       case 'ping': return json({ ok: true, service: 'teammeal' });
       case 'team': return json({ ok: true, ...(await getTeam(db, p)) });
       case 'order': return json({ ok: true, ...(await getOrder(db, p)) });
       case 'orders': return json({ ok: true, ...(await getOrders(db, p)) });
       case 'csv': return await getCsv(db, p);
+      case 'adminSetup': return json({ ok: true, ...(await adminSetup(db)) });
+      case 'admin': return json({ ok: true, ...(await getAdmin(db, p)) });
       case 'joinWaitlist': return json({ ok: true, ...(await joinWaitlist(db, p)) });
       case 'createTeam': return json({ ok: true, ...(await createTeam(db, p)) });
       case 'submitOrder': return json({ ok: true, ...(await submitOrder(db, p)) });
@@ -93,7 +97,7 @@ async function bump(db, key, windowMs) {
   return r ? Number(r.n) : 1;
 }
 async function enforceLimits(db, request, action) {
-  const kind = (action === 'updateOrder' || action === 'deleteOrder') ? 'change' : action;
+  const kind = (action === 'updateOrder' || action === 'deleteOrder') ? 'change' : action === 'adminSetup' ? 'admin' : action;
   const [max, windowMs] = LIMITS[kind];
   const me = await who(request);
   if (await bump(db, kind + ':' + me, windowMs) > max) {
@@ -283,6 +287,28 @@ async function getCsv(db, p) {
   });
   return new Response('﻿' + rows.join('\r\n'), { headers: { 'Content-Type': 'text/csv; charset=utf-8',
     'Content-Disposition': 'attachment; filename="' + slug(team.name) + '-orders.csv"', 'Cache-Control': 'no-store' } });
+}
+
+/* ---------- owner page ---------- */
+
+/* The owner key is made once, by the first call to adminSetup, and kept in the database. It is never in the code. */
+async function adminSetup(db) {
+  const have = await db.prepare("SELECT v FROM settings WHERE k = 'admin_key'").first();
+  if (have) throw fail('invalid', 'The owner page is already set up.');
+  const key = newKey();
+  await db.prepare("INSERT OR IGNORE INTO settings (k, v) VALUES ('admin_key', ?)").bind(key).run();
+  const row = await db.prepare("SELECT v FROM settings WHERE k = 'admin_key'").first();
+  if (!row || row.v !== key) throw fail('invalid', 'The owner page is already set up.');
+  return { key };
+}
+
+async function getAdmin(db, p) {
+  const row = await db.prepare("SELECT v FROM settings WHERE k = 'admin_key'").first();
+  if (!row || String(p.key || '') !== row.v) throw fail('bad_key', 'That owner link is not valid.');
+  const wl = await db.prepare('SELECT email, created FROM waitlist ORDER BY created DESC').all();
+  const tm = await db.prepare("SELECT t.id, t.name, t.created, (SELECT COUNT(*) FROM orders o WHERE o.team_id = t.id AND o.status = 'active') AS orders FROM teams t ORDER BY t.created DESC LIMIT 200").all();
+  const total = await db.prepare("SELECT COUNT(*) AS c FROM orders WHERE status = 'active'").first();
+  return { waitlist: wl.results || [], teams: (tm.results || []).map(t => ({ id: t.id, name: t.name, created: Number(t.created), orders: Number(t.orders) })), totalOrders: Number(total.c) };
 }
 
 /* ---------- writes ---------- */

@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow">
+<title>Team Meal Owner</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Montserrat:wght@700;800&family=Inter:wght@400;500;600&display=swap">
+<style>
+:root{--bg:#FBF8F2;--surface:#FFFFFF;--fg:#13283F;--muted:#4A5A6E;--line:#E6DFD2;--brand:#143758;--cta-bg:#143758;--cta-fg:#FFFFFF;--lime:#91D847;--alert:#8B2424;--alert-bg:#FBECEC;--display:'Montserrat',system-ui,sans-serif;--body:'Inter',system-ui,sans-serif}
+@media (prefers-color-scheme: dark){:root{--bg:#0E2742;--surface:#143758;--fg:#FFFFFF;--muted:#B9C7D8;--line:#2A4A6C;--brand:#FFFFFF;--cta-bg:#91D847;--cta-fg:#0E2742;--alert:#FFB4B4;--alert-bg:#3A1E24;color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--fg);font-family:var(--body);font-size:17px;line-height:1.5;padding:0 max(16px,env(safe-area-inset-left,0px)) 80px}
+.wrap{max-width:760px;margin:0 auto}
+h1,h2{font-family:var(--display);font-weight:800;color:var(--brand);margin:0}
+header{display:flex;align-items:center;justify-content:space-between;padding-block:24px}
+.logo{font-family:var(--display);font-weight:800;font-size:24px;letter-spacing:-1.2px;color:var(--brand)}
+.pill{font-size:13px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--brand);border:1.5px solid var(--brand);border-radius:999px;padding:5px 12px}
+h1{font-size:clamp(28px,5vw,38px);margin:4px 0 16px}
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:0 0 18px}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px}
+.stat b{display:block;font-family:var(--display);font-size:30px;line-height:1.1;color:var(--brand)}
+.stat span{font-size:13px;color:var(--muted)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:22px;padding:22px;margin:0 0 18px;box-shadow:0 10px 28px rgba(14,39,66,.08)}
+.card h2{font-size:21px;margin-bottom:10px}
+.btn{font-family:var(--display);font-weight:700;font-size:15px;min-height:42px;padding:0 20px;border-radius:999px;border:0;background:var(--cta-bg);color:var(--cta-fg);cursor:pointer}
+.btn.ghost{background:transparent;color:var(--brand);border:1.5px solid var(--muted)}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:0 0 12px}
+.small{font-size:14px;color:var(--muted)}
+table{width:100%;border-collapse:collapse;font-size:15px}
+th,td{text-align:left;padding:7px 6px;border-top:1px solid var(--line);overflow-wrap:anywhere}
+th{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--muted);border-top:0}
+.scroll{max-height:420px;overflow:auto}
+.msg{border-radius:14px;padding:10px 14px;margin:0 0 14px;border:1.5px solid var(--alert);background:var(--alert-bg);color:var(--alert)}
+button:focus-visible{outline:3px solid var(--lime);outline-offset:2px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header><div class="logo">Team Meal</div><span class="pill">Owner</span></header>
+  <div id="msg"></div>
+  <div id="main" hidden>
+    <h1>Owner page</h1>
+    <div class="stats">
+      <div class="stat"><b id="sWait">0</b><span>on the wait list</span></div>
+      <div class="stat"><b id="sTeams">0</b><span>teams</span></div>
+      <div class="stat"><b id="sOrders">0</b><span>orders</span></div>
+    </div>
+    <div class="card">
+      <h2>Wait list</h2>
+      <div class="row">
+        <button class="btn" id="copyAll">Copy all emails</button>
+        <button class="btn ghost" id="csv">Download spreadsheet</button>
+        <span class="small" id="done"></span>
+      </div>
+      <div class="scroll"><table><thead><tr><th>Email</th><th>Joined</th></tr></thead><tbody id="wait"></tbody></table></div>
+    </div>
+    <div class="card">
+      <h2>Teams</h2>
+      <div class="scroll"><table><thead><tr><th>Team</th><th>Orders</th><th>Made</th></tr></thead><tbody id="teams"></tbody></table></div>
+      <p class="small">Newest first, up to 200. Private links are never shown here.</p>
+    </div>
+  </div>
+</div>
+<script src="teammeal-config.js"></script>
+<script src="teammeal.js"></script>
+<script>
+const $ = s => document.querySelector(s), esc = TM.esc;
+const KEY = new URLSearchParams(location.search).get("key") || "";
+let DATA = null;
+const when = ms => new Date(ms).toLocaleString([], {month: "short", day: "numeric", year: "numeric", hour: "numeric", minute: "2-digit"});
+(async () => {
+  try { DATA = await TM.get({action: "admin", key: KEY}); }
+  catch (e) { $("#msg").innerHTML = `<div class="msg">${esc(e.code === "bad_key" ? "That owner link is not valid. Use the full link you were given." : e.message)}</div>`; return; }
+  $("#main").hidden = false;
+  $("#sWait").textContent = DATA.waitlist.length; $("#sTeams").textContent = DATA.teams.length; $("#sOrders").textContent = DATA.totalOrders;
+  $("#wait").innerHTML = DATA.waitlist.length ? DATA.waitlist.map(w => `<tr><td>${esc(w.email)}</td><td>${esc(when(w.created))}</td></tr>`).join("") : '<tr><td colspan="2" class="small">No sign-ups yet.</td></tr>';
+  $("#teams").innerHTML = DATA.teams.length ? DATA.teams.map(t => `<tr><td>${esc(t.name)}</td><td>${t.orders}</td><td>${esc(when(t.created))}</td></tr>`).join("") : '<tr><td colspan="3" class="small">No teams yet.</td></tr>';
+  $("#copyAll").onclick = () => navigator.clipboard && navigator.clipboard.writeText(DATA.waitlist.map(w => w.email).join(", ")).then(() => { $("#done").textContent = "Copied"; setTimeout(() => { $("#done").textContent = ""; }, 3000); });
+  $("#csv").onclick = () => {
+    const safe = v => '"' + String(v).replace(/"/g, '""') + '"';
+    const text = "﻿" + ["Email,Joined"].concat(DATA.waitlist.map(w => safe(w.email) + "," + safe(new Date(w.created).toISOString()))).join("\r\n");
+    const a = document.createElement("a"); a.href = URL.createObjectURL(new Blob([text], {type: "text/csv"})); a.download = "teammeal-waitlist.csv"; a.click();
+  };
+})();
+</script>
+</body>
+</html>

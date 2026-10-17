@@ -5,7 +5,7 @@ const fs = require('fs');
 const path = require('path');
 const { load } = require('./d1-mock');
 
-const root = path.join(__dirname, '..');
+const root = path.join(__dirname, '..', 'public');
 const types = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.json': 'application/json', '.css': 'text/css' };
 
 load().then(gas => {
@@ -21,7 +21,7 @@ load().then(gas => {
     let p = url.pathname === '/' ? '/index.html' : url.pathname;
     if (!path.extname(p)) p += '.html'; /* same pretty URLs as Cloudflare Pages */
     const file = path.join(root, p);
-    if (!file.startsWith(root) || !fs.existsSync(file) || /^\/(dev|functions)\//.test(p)) { res.statusCode = 404; return res.end('not found'); }
+    if (!file.startsWith(root) || !fs.existsSync(file)) { res.statusCode = 404; return res.end('not found'); }
     res.setHeader('Content-Type', types[path.extname(file)] || 'application/octet-stream');
     res.end(fs.readFileSync(file));
   }).listen(Number(process.argv[2]) || 8787, () => console.log('dev server up'));
