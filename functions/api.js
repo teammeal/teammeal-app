@@ -195,9 +195,9 @@ function cleanMenu(m) {
   return clean;
 }
 
-function cleanOrder(o, menu) {
+function cleanOrder(o, menu, autoNum) {
   if (!o || typeof o !== 'object') throw fail('invalid', 'The order is missing.');
-  const num = str(o.num, 4).replace(/^#/, '');
+  const num = autoNum ? String(autoNum) : str(o.num, 4).replace(/^#/, '');
   if (!/^\d{1,3}$/.test(num)) throw fail('invalid', 'The player number needs 1 to 3 digits.');
   if (!Array.isArray(o.people) || o.people.length < 1 || o.people.length > 30) throw fail('invalid', 'An order needs 1 to 30 people.');
   const byName = {};
@@ -245,7 +245,7 @@ function authFor(team, order, key) {
 /* ---------- reads ---------- */
 
 const publicTeam = t => ({ id: t.id, name: t.name, orderBy: t.orderBy, menuLink: t.menuLink, closed: isClosed(t),
-  numbers: t.roster.map(p => p.number), menu: t.menu });
+  numbers: t.roster.map(p => p.number), open: t.roster.length === 0, menu: t.menu });
 
 async function getTeam(db, p) { return { team: publicTeam(await findTeam(db, p.id)) }; }
 
@@ -332,7 +332,8 @@ async function createTeam(db, b) {
     orderBy = typeof b.orderBy === 'number' ? b.orderBy : Date.parse(b.orderBy);
     if (!isFinite(orderBy)) throw fail('invalid', 'The order-by time is not a valid date.');
   }
-  const roster = cleanRoster(b.roster);
+  /* open team: no roster, nobody needs a player number. The server numbers each order instead. */
+  const roster = b.open === true ? [] : cleanRoster(b.roster);
   const menu = cleanMenu(b.menu);
   const menuText = JSON.stringify(menu);
   if (menuText.length > 200000) throw fail('invalid', 'That menu is too large.');
@@ -348,7 +349,12 @@ async function submitOrder(db, b) {
   if (isClosed(team)) throw fail('closed', 'Ordering for this team has closed.');
   const cnt = await db.prepare("SELECT COUNT(*) AS c FROM orders WHERE team_id = ? AND status = 'active'").bind(team.id).first();
   if (cnt && Number(cnt.c) >= ORDERS_PER_TEAM) throw fail('limit', 'This team has reached its limit of ' + ORDERS_PER_TEAM + ' orders. Ask your organizer.');
-  const payload = cleanOrder(b.order, team.menu);
+  let autoNum = null;
+  if (!team.roster.length) {
+    const all = await db.prepare('SELECT COUNT(*) AS c FROM orders WHERE team_id = ?').bind(team.id).first();
+    autoNum = (Number(all && all.c) || 0) + 1;
+  }
+  const payload = cleanOrder(b.order, team.menu, autoNum);
   const now = Date.now();
   const orderId = 'o' + newKey().slice(0, 12), editKey = newKey();
   await db.prepare("INSERT INTO orders (order_id, team_id, edit_key, created, updated, player_number, people, status, payload) VALUES (?, ?, ?, ?, ?, ?, ?, 'active', ?)")
@@ -361,7 +367,9 @@ async function updateOrder(db, b) {
   const team = await findTeam(db, order.teamId);
   const auth = authFor(team, order, b.key);
   if (isClosed(team) && !auth.admin) throw fail('closed', 'Ordering has closed. Ask your organizer to make the change.');
-  const payload = cleanOrder(b.order, team.menu);
+  let keepNum = null;
+  if (!team.roster.length) { const cur = await db.prepare('SELECT player_number AS n FROM orders WHERE order_id = ?').bind(order.orderId).first(); keepNum = cur && cur.n; }
+  const payload = cleanOrder(b.order, team.menu, keepNum);
   await db.prepare("UPDATE orders SET updated = ?, player_number = ?, people = ?, payload = ? WHERE order_id = ? AND status = 'active'")
     .bind(Date.now(), payload.num, payload.people.length, JSON.stringify(payload), order.orderId).run();
   return { orderId: order.orderId };

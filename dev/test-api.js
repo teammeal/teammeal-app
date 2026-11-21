@@ -39,6 +39,17 @@ const sleep = ms => new Promise(r => setTimeout(r, ms));
     assert.strictEqual(r.team.menu.sections.length, menu.sections.length);
     assert.strictEqual(r.team.closed, false);
   });
+  await ok('open team: no roster, server numbers each order', async () => {
+    const ot = await gas.post({ action: 'createTeam', team: 'Coffee', open: true, roster: [], menu });
+    assert(ot.ok);
+    assert.strictEqual((await gas.get({ action: 'team', id: ot.id })).team.open, true);
+    const a = await gas.post({ action: 'submitOrder', teamId: ot.id, order: mk('', ['Sam']) });
+    const b = await gas.post({ action: 'submitOrder', teamId: ot.id, order: mk('', ['Pat']) });
+    assert(a.ok && b.ok);
+    const list = await gas.get({ action: 'orders', id: ot.id, key: ot.adminKey });
+    assert.deepStrictEqual((list.orders || []).map(o => o.order.num).sort(), ['1', '2']);
+    await err({ action: 'createTeam', team: 'No roster', roster: [], menu }, 'invalid');
+  });
   await ok('unknown team', async () => assert.strictEqual((await gas.get({ action: 'team', id: 'nope' })).error, 'not_found'));
 
   const o1 = await gas.post({ action: 'submitOrder', teamId: t.id, order: mk('17', ['Alex', 'Dana', 'Jo']) });

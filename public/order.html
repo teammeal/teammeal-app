@@ -108,6 +108,7 @@ pre{white-space:pre-wrap;background:var(--input);border:1px solid var(--line);bo
 <script src="teammeal.js"></script>
 <script>
 const Q = new URLSearchParams(location.search);
+let OPEN = false;
 const TEAM_ID = Q.get("team") || "";
 const EDIT_ID = Q.get("order") || "";
 const EDIT_KEY = Q.get("key") || "";
@@ -171,6 +172,8 @@ async function loadTeam() {
   }
   TEAMDATA = res.team; TEAMNAME = TEAMDATA.name; IS_ADMIN = !!res.isAdmin; LOCKED = !!res.locked;
   applyMenu(TEAMDATA.menu);
+  OPEN = !!TEAMDATA.open;
+  if (OPEN) $(".numf").style.display = "none";
   const sub = $("#subtitle"); sub.style.display = "block";
   sub.textContent = TEAMDATA.orderBy ? (TEAMDATA.closed ? "Ordering closed " : "Order by ") + TM.fmtTime(TEAMDATA.orderBy) : "";
   if (!sub.textContent) sub.style.display = "none";
@@ -321,12 +324,12 @@ function showErr(m) { const e = $("#err"); e.textContent = m; e.style.display = 
 function buildOrder() {
   const first = $("#first").value.trim(), last = "", num = $("#num").value.trim();
   if (!first) return showErr("Please enter your first name."), null;
-  if (!num) return showErr("Please enter the player number."), null;
+  if (!num && !OPEN) return showErr("Please enter the player number."), null;
   if (!cart.length) return showErr("Please add at least one item."), null;
   showErr("");
   const groups = people.map(p => ({p, lines: cart.filter(l => l.pid === p.id)})).filter(g => g.lines.length);
   const total = cart.reduce((n, l) => n + l.it.p, 0);
-  const parts = [`ORDER: ${first}, Player #${num}`];
+  const parts = [OPEN ? `ORDER: ${first}` : `ORDER: ${first}, Player #${num}`];
   if (TEAMNAME) parts.push(`Team: ${TEAMNAME}`);
   if (groups.length > 1) parts.push(`${groups.length} people on this order`);
   groups.forEach(g => {
