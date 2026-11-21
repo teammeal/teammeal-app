@@ -1,0 +1,601 @@
+{
+ "restaurant": "Starbucks",
+ "sides": [],
+ "sections": [
+  {
+   "name": "Hot Coffee",
+   "note": "Prices are estimates for a Grande (16 oz). Tall runs about $0.70 less and Venti about $0.50 more. Check the Starbucks app for your store's exact prices.",
+   "items": [
+    {
+     "name": "Pike Place Brewed Coffee",
+     "price": 3.75,
+     "description": "Medium roast drip coffee",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Size",
+       "choices": [
+        "Tall",
+        "Grande",
+        "Venti"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Caffè Americano",
+     "price": 4.45,
+     "description": "Espresso with hot water",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Size",
+       "choices": [
+        "Tall",
+        "Grande",
+        "Venti"
+       ]
+      },
+      {
+       "name": "Espresso",
+       "choices": [
+        "Regular",
+        "Blonde"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Caffè Latte",
+     "price": 5.45,
+     "description": "Espresso with steamed milk",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Size",
+       "choices": [
+        "Tall",
+        "Grande",
+        "Venti"
+       ]
+      },
+      {
+       "name": "Hot or iced",
+       "choices": [
+        "Hot",
+        "Iced"
+       ]
+      },
+      {
+       "name": "Milk",
+       "choices": [
+        "2% milk",
+        "Nonfat milk",
+        "Whole milk",
+        "Oat milk",
+        "Almond milk",
+        "Soy milk",
+        "Coconut milk"
+       ]
+      },
+      {
+       "name": "Espresso",
+       "choices": [
+        "Regular",
+        "Blonde"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Cappuccino",
+     "price": 5.25,
+     "description": "Espresso with steamed milk and thick foam",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Size",
+       "choices": [
+        "Tall",
+        "Grande",
+        "Venti"
+       ]
+      },
+      {
+       "name": "Milk",
+       "choices": [
+        "2% milk",
+        "Nonfat milk",
+        "Whole milk",
+        "Oat milk",
+        "Almond milk",
+        "Soy milk",
+        "Coconut milk"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Flat White",
+     "price": 5.75,
+     "description": "Ristretto shots with velvety steamed milk",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Size",
+       "choices": [
+        "Tall",
+        "Grande",
+        "Venti"
+       ]
+      },
+      {
+       "name": "Milk",
+       "choices": [
+        "2% milk",
+        "Nonfat milk",
+        "Whole milk",
+        "Oat milk",
+        "Almond milk",
+        "Soy milk",
+        "Coconut milk"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Caramel Macchiato",
+     "price": 5.95,
+     "description": "Vanilla, steamed milk, espresso, caramel drizzle",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Size",
+       "choices": [
+        "Tall",
+        "Grande",
+        "Venti"
+       ]
+      },
+      {
+       "name": "Hot or iced",
+       "choices": [
+        "Hot",
+        "Iced"
+       ]
+      },
+      {
+       "name": "Milk",
+       "choices": [
+        "2% milk",
+        "Nonfat milk",
+        "Whole milk",
+        "Oat milk",
+        "Almond milk",
+        "Soy milk",
+        "Coconut milk"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Caffè Mocha",
+     "price": 5.95,
+     "description": "Espresso, mocha sauce, steamed milk, whipped cream",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Size",
+       "choices": [
+        "Tall",
+        "Grande",
+        "Venti"
+       ]
+      },
+      {
+       "name": "Hot or iced",
+       "choices": [
+        "Hot",
+        "Iced"
+       ]
+      },
+      {
+       "name": "Milk",
+       "choices": [
+        "2% milk",
+        "Nonfat milk",
+        "Whole milk",
+        "Oat milk",
+        "Almond milk",
+        "Soy milk",
+        "Coconut milk"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Hot Chocolate",
+     "price": 4.45,
+     "description": "Steamed milk with mocha sauce and whipped cream",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Size",
+       "choices": [
+        "Tall",
+        "Grande",
+        "Venti"
+       ]
+      },
+      {
+       "name": "Milk",
+       "choices": [
+        "2% milk",
+        "Nonfat milk",
+        "Whole milk",
+        "Oat milk",
+        "Almond milk",
+        "Soy milk",
+        "Coconut milk"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Cold Coffee",
+   "note": "",
+   "items": [
+    {
+     "name": "Iced Coffee",
+     "price": 3.95,
+     "description": "Freshly brewed over ice, lightly sweetened unless you ask for none",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Size",
+       "choices": [
+        "Tall",
+        "Grande",
+        "Venti"
+       ]
+      },
+      {
+       "name": "Sweetener",
+       "choices": [
+        "Classic sweetener",
+        "Unsweetened"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Cold Brew",
+     "price": 4.95,
+     "description": "Slow-steeped, smooth and bold",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Size",
+       "choices": [
+        "Tall",
+        "Grande",
+        "Venti"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Vanilla Sweet Cream Cold Brew",
+     "price": 5.45,
+     "description": "Cold brew topped with vanilla sweet cream",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Size",
+       "choices": [
+        "Tall",
+        "Grande",
+        "Venti"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Iced Brown Sugar Oatmilk Shaken Espresso",
+     "price": 6.25,
+     "description": "Blonde espresso shaken with brown sugar, cinnamon and oat milk",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Size",
+       "choices": [
+        "Tall",
+        "Grande",
+        "Venti"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Tea, Matcha and Refreshers",
+   "note": "",
+   "items": [
+    {
+     "name": "Chai Tea Latte",
+     "price": 5.45,
+     "description": "Spiced black tea with steamed milk",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Size",
+       "choices": [
+        "Tall",
+        "Grande",
+        "Venti"
+       ]
+      },
+      {
+       "name": "Hot or iced",
+       "choices": [
+        "Hot",
+        "Iced"
+       ]
+      },
+      {
+       "name": "Milk",
+       "choices": [
+        "2% milk",
+        "Nonfat milk",
+        "Whole milk",
+        "Oat milk",
+        "Almond milk",
+        "Soy milk",
+        "Coconut milk"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Matcha Tea Latte",
+     "price": 5.45,
+     "description": "Matcha with milk",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Size",
+       "choices": [
+        "Tall",
+        "Grande",
+        "Venti"
+       ]
+      },
+      {
+       "name": "Hot or iced",
+       "choices": [
+        "Hot",
+        "Iced"
+       ]
+      },
+      {
+       "name": "Milk",
+       "choices": [
+        "2% milk",
+        "Nonfat milk",
+        "Whole milk",
+        "Oat milk",
+        "Almond milk",
+        "Soy milk",
+        "Coconut milk"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Pink Drink",
+     "price": 5.45,
+     "description": "Strawberry Açaí Refresher with coconut milk",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Size",
+       "choices": [
+        "Tall",
+        "Grande",
+        "Venti"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Strawberry Açaí Refresher",
+     "price": 4.95,
+     "description": "Fruity and lightly caffeinated",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Size",
+       "choices": [
+        "Tall",
+        "Grande",
+        "Venti"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Brewed Hot Tea",
+     "price": 3.45,
+     "description": "Choose your tea",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Size",
+       "choices": [
+        "Tall",
+        "Grande",
+        "Venti"
+       ]
+      },
+      {
+       "name": "Tea",
+       "choices": [
+        "Earl Grey",
+        "English Breakfast",
+        "Peach Tranquility",
+        "Mint Majesty",
+        "Emperor's Clouds and Mist"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Frappuccino",
+   "note": "Blended drinks.",
+   "items": [
+    {
+     "name": "Caramel Frappuccino",
+     "price": 5.95,
+     "description": "Coffee blended with caramel, milk and ice, whipped cream on top",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Size",
+       "choices": [
+        "Tall",
+        "Grande",
+        "Venti"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Java Chip Frappuccino",
+     "price": 6.45,
+     "description": "Mocha, Frappuccino chips, coffee and milk blended with ice",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Size",
+       "choices": [
+        "Tall",
+        "Grande",
+        "Venti"
+       ]
+      }
+     ]
+    },
+    {
+     "name": "Vanilla Bean Crème Frappuccino",
+     "price": 5.95,
+     "description": "Caffeine-free, vanilla blended with milk and ice",
+     "sideCount": 0,
+     "options": [
+      {
+       "name": "Size",
+       "choices": [
+        "Tall",
+        "Grande",
+        "Venti"
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "name": "Breakfast",
+   "note": "Food is heated on request. Ask the organizer to note any allergies.",
+   "items": [
+    {
+     "name": "Bacon, Gouda & Egg Sandwich",
+     "price": 5.45,
+     "description": "Artisan breakfast sandwich",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Egg White & Roasted Red Pepper Bites",
+     "price": 5.25,
+     "description": "Sous vide egg bites",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Bacon & Gruyère Egg Bites",
+     "price": 5.45,
+     "description": "Sous vide egg bites",
+     "sideCount": 0,
+     "options": []
+    }
+   ]
+  },
+  {
+   "name": "Bakery and Treats",
+   "note": "",
+   "items": [
+    {
+     "name": "Butter Croissant",
+     "price": 3.75,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Chocolate Croissant",
+     "price": 3.95,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Blueberry Muffin",
+     "price": 3.75,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Iced Lemon Loaf Cake",
+     "price": 3.95,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Banana Walnut & Pecan Bread",
+     "price": 3.95,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Chocolate Chunk Cookie",
+     "price": 3.45,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Chocolate Cake Pop",
+     "price": 3.45,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    },
+    {
+     "name": "Birthday Cake Pop",
+     "price": 3.45,
+     "description": "",
+     "sideCount": 0,
+     "options": []
+    }
+   ]
+  }
+ ]
+}

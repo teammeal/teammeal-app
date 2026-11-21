@@ -121,7 +121,7 @@ footer{padding-block:24px;color:var(--muted);font-size:14px}
 <h3 style="font-size:17px;margin:24px 0 6px">Paste what the AI gives back</h3>
 <label for="menuPaste" class="small" style="font-weight:400">The whole reply, as is.</label>
 <textarea id="menuPaste" class="mono" placeholder="Paste the result here"></textarea>
-<div class="row"><button class="btn" id="checkMenu" type="button">Check menu</button><button class="btn ghost" id="sampleMenu" type="button">Try the Ford's Garage sample</button></div>
+<div class="row"><button class="btn" id="checkMenu" type="button">Check menu</button><button class="btn ghost" id="sampleMenu" type="button">Try the Ford's Garage sample</button><button class="btn ghost" id="sampleStarbucks" type="button">Try the Starbucks sample</button></div>
 <div id="menuMsgs" aria-live="polite"></div>
 <div id="menuPreview"></div>
 </section>
@@ -380,6 +380,10 @@ function checkMenu() {
   updateReview();
 }
 $("#checkMenu").onclick = checkMenu;
+$("#sampleStarbucks").onclick = async () => {
+  try { const r = await fetch("starbucks-menu.json"); $("#menuPaste").value = JSON.stringify(await r.json(), null, 1); checkMenu(); }
+  catch (e) { $("#menuMsgs").innerHTML = "<div class=\"msg err\"><b>Couldn't load the sample.</b></div>"; }
+};
 $("#sampleMenu").onclick = async () => {
   try { const r = await fetch("fordsgarage-menu.json"); $("#menuPaste").value = JSON.stringify(await r.json(), null, 1); checkMenu(); }
   catch (e) { $("#menuMsgs").innerHTML = "<div class=\"msg err\"><b>Couldn't load the sample.</b></div>"; }
